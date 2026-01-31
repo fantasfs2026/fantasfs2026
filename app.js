@@ -431,47 +431,62 @@ function showCheckoutView(totalCost) {
     };
 
     const confirmBtn = document.getElementById('checkout-confirm-btn');
-    // Remove old listeners by cloning or re-assigning onclick
+
     confirmBtn.onclick = async () => {
-        confirmBtn.disabled = true;
-        confirmBtn.textContent = "Elaborazione in corso...";
-        await saveTeamToFirestore(totalCost);
-        // Reset button state just in case
-        confirmBtn.disabled = false;
-        confirmBtn.textContent = "Conferma Squadra";
+        // Validation check
+        if (!window.dbUtils || !window.dbUtils.updateDoc) {
+            alert("Errore di sistema: Funzione di salvataggio non caricata. Ricarica la pagina.");
+            return;
+        }
+
+        try {
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = "Elaborazione in corso...";
+
+            await saveTeamToFirestore(totalCost);
+
+            // If we are here, save was successful. 
+            // In checkout logic, the view is replaced, so we don't need to re-enable.
+            // But if logic changes, safer to do nothing or handle in saveTeamToFirestore.
+
+        } catch (error) {
+            console.error("Critical error in checkout:", error);
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = "Riprova Conferma";
+            alert("Si è verificato un errore imprevisto: " + error.message);
+        }
     };
 }
 
 async function saveTeamToFirestore(totalCost) {
     const { doc, updateDoc } = window.dbUtils;
+
+    if (!window.auth.currentUser) throw new Error("Utente non autenticato.");
+
     const userDocRef = doc(window.db, "users", window.auth.currentUser.uid);
 
-    try {
-        await updateDoc(userDocRef, {
-            team: currentDraft,
-            credits: currentUserData.credits - totalCost
-        });
+    // Perform Update
+    await updateDoc(userDocRef, {
+        team: currentDraft,
+        credits: currentUserData.credits - totalCost
+    });
 
-        // Success State
-        const checkoutView = document.getElementById('checkout-view');
-        checkoutView.innerHTML = `
-            <div style="text-align: center; padding: 2rem;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
-                <h2>Daje!</h2>
-                <p>La tua squadra è stata registrata con successo.</p>
-                <button class="btn-primary" onclick="location.reload()" style="margin-top: 2rem;">Torna alla Home</button>
-            </div>
-        `;
+    // Success State - Replace View Content
+    const checkoutView = document.getElementById('checkout-view');
+    checkoutView.innerHTML = `
+        <div style="text-align: center; padding: 2rem; animation: fadeIn 0.5s;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🎉</div>
+            <h2 style="color: var(--accent-color); margin-bottom: 1rem;">Daje!</h2>
+            <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 2rem;">
+                La tua squadra è stata registrata con successo.<br>
+                In bocca al lupo per il FantaSFS!
+            </p>
+            <button class="btn-primary" onclick="location.reload()">Torna alla Home</button>
+        </div>
+    `;
 
-    } catch (e) {
-        console.error("Error saving team:", e);
-        alert("Errore durante il salvataggio: " + e.message);
-        const confirmBtn = document.getElementById('checkout-confirm-btn'); // Re-get if needed
-        if (confirmBtn) {
-            confirmBtn.disabled = false;
-            confirmBtn.textContent = "Riprova Conferma";
-        }
-    }
+    // Reset local state
+    currentDraft = { 'Circolo': [], 'Equipe': [], 'Ospite': [] };
 }
 
 
