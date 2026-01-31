@@ -931,6 +931,32 @@ footer {
     font-size: 1.4rem;
 }
 
+/* ADMIN STYLES */
+.admin-score-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--accent-color);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 8px;
+    width: 60px;
+    text-align: center;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+}
+
+.market-item.admin-mode {
+    cursor: default;
+}
+
+.market-item.admin-mode:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+#app-version {
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
 .nav-label {
     font-size: 0.7rem;
     font-weight: 500;

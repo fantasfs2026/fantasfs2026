@@ -209,6 +209,12 @@ function updateUserUI(data) {
     if (document.getElementById('user-credits')) {
         document.getElementById('user-credits').textContent = `Crediti: ${data.credits}`;
     }
+
+    // ROLE-BASED UI
+    const navAdmin = document.getElementById('nav-admin');
+    if (navAdmin) {
+        navAdmin.style.display = (data.role === 'admin') ? 'flex' : 'none';
+    }
 }
 
 function renderEmptyTeamState() {
@@ -529,6 +535,14 @@ function handleNavigation(targetId) {
         if (mainTitle) mainTitle.textContent = "Classifica";
         loadLeaderboard();
     }
+    else if (targetId === 'admin-view') {
+        const adminView = document.getElementById('admin-view');
+        adminView.style.display = 'block';
+        draftBar.style.display = 'none';
+        card.classList.add('compact');
+        if (mainTitle) mainTitle.textContent = "Pannello Admin";
+        loadAdminMarket();
+    }
     else if (targetId === 'user-info') {
         // Special case: Scroll to Rules in Dashboard
         dashboardView.style.display = 'block';
@@ -633,6 +647,88 @@ window.openUserTeamModal = function (userData) {
     modal.onclick = (e) => {
         if (e.target === modal) modal.style.display = 'none';
     };
+};
+
+async function loadAdminMarket() {
+    const container = document.getElementById('admin-market-list');
+    container.innerHTML = '<div class="loading-item">Caricamento personaggi...</div>';
+
+    const { getDocs, collection, query, orderBy } = window.dbUtils;
+    const q = query(collection(window.db, "market"), orderBy("category"), orderBy("name"));
+    const snapshot = await getDocs(q);
+
+    container.innerHTML = '';
+    snapshot.forEach(doc => {
+        const item = doc.data();
+        const score = item.fantaScore || 0;
+
+        container.innerHTML += `
+            <div class="market-item admin-mode">
+                <div class="leaderboard-info">
+                    <span class="item-name">${item.name}</span>
+                    <small style="opacity:0.6; display:block;">${item.category}</small>
+                </div>
+                <input type="number" class="admin-score-input" 
+                       data-id="${doc.id}" value="${score}" step="1">
+            </div>
+        `;
+    });
+}
+
+document.getElementById('save-scores-btn').onclick = async function () {
+    const btn = this;
+    const inputs = document.querySelectorAll('.admin-score-input');
+    const { getFirestore, writeBatch, doc, collection, getDocs } = window.dbUtils;
+
+    if (!confirm("Stai per aggiornare i punti di tutti i personaggi e ricalcolare la classifica. Procedere?")) return;
+
+    btn.disabled = true;
+    btn.textContent = "Aggiornamento in corso...";
+
+    try {
+        const batch = writeBatch(window.db);
+
+        // 1. Update Market Items scores
+        const newScoresMap = {}; // itemId -> score
+        inputs.forEach(input => {
+            const itemId = input.dataset.id;
+            const score = parseInt(input.value) || 0;
+            newScoresMap[itemId] = score;
+            const itemRef = doc(window.db, "market", itemId);
+            batch.set(itemRef, { fantaScore: score }, { merge: true });
+        });
+
+        // 2. We need to recalculate EVERY user score
+        // (Batch limit is 500 operations. If users + items > 500 we need multiple batches)
+        const usersSnapshot = await getDocs(collection(window.db, "users"));
+
+        usersSnapshot.forEach(userDoc => {
+            const userData = userDoc.data();
+            const team = userData.team || {};
+            let totalScore = 0;
+
+            // Calculate total for this user
+            Object.values(team).flat().forEach(item => {
+                if (item && item.id) {
+                    totalScore += (newScoresMap[item.id] || 0);
+                }
+            });
+
+            const userRef = doc(window.db, "users", userDoc.id);
+            batch.set(userRef, { fantaScore: totalScore }, { merge: true });
+        });
+
+        await batch.commit();
+        alert("Punteggi aggiornati correttamente per tutti gli utenti! 🎉");
+        btn.disabled = false;
+        btn.textContent = "Salva e Aggiorna Classifica";
+
+    } catch (error) {
+        console.error("Score update error:", error);
+        alert("Errore durante l'aggiornamento: " + error.message);
+        btn.disabled = false;
+        btn.textContent = "Riprova";
+    }
 };
 
 // Set App Version (Matching SW)

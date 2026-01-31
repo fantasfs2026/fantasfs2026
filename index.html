@@ -115,31 +115,43 @@
                     </div>
                 </div>
 
-                <!-- LEADERBOARD VIEW (Hidden by default) -->
-                <div id="leaderboard-view" style="display: none; padding-bottom: 100px;">
-                    <div class="leaderboard-header">
-                        <p class="description">Guarda chi è in testa al FantaSFS!</p>
-                    </div>
-
-                    <div id="leaderboard-list" class="leaderboard-list">
-                        <div class="loading-item">Caricamento classifica...</div>
-                    </div>
+                <div id="leaderboard-list" class="leaderboard-list">
+                    <div class="loading-item">Caricamento classifica...</div>
                 </div>
-            </section>
+        </div>
 
-            <!-- STICKY ACTION BAR for Draft Mode -->
-            <div id="draft-bar" class="draft-bar" style="display: none;">
-                <div class="draft-info">
-                    <span id="draft-cost">Costo: 0</span>
-                    <span id="draft-count" style="font-size: 0.8rem; opacity: 0.8">0/5</span>
-                </div>
-                <button id="save-team-btn" class="btn-primary" disabled>Conferma Squadra</button>
+        <!-- ADMIN VIEW (Hidden by default, only for role='admin') -->
+        <div id="admin-view" style="display: none; padding-bottom: 100px;">
+            <div class="leaderboard-header">
+                <p class="description">Gestione Punti Personaggi</p>
             </div>
 
-            <footer>
-                <p>&copy; 2026. Tutti i diritti riservati. <span id="app-version"
-                        style="opacity: 0.5; margin-left: 10px;"></span></p>
-            </footer>
+            <div id="admin-market-list" class="market-list">
+                <!-- Populated dynamically with inputs -->
+                <div class="loading-item">Caricamento mercato...</div>
+            </div>
+
+            <div style="margin-top: 2rem; text-align: center;">
+                <button id="save-scores-btn" class="btn-primary" style="width: 100%; padding: 1rem;">
+                    Salva e Aggiorna Classifica
+                </button>
+            </div>
+        </div>
+        </section>
+
+        <!-- STICKY ACTION BAR for Draft Mode -->
+        <div id="draft-bar" class="draft-bar" style="display: none;">
+            <div class="draft-info">
+                <span id="draft-cost">Costo: 0</span>
+                <span id="draft-count" style="font-size: 0.8rem; opacity: 0.8">0/5</span>
+            </div>
+            <button id="save-team-btn" class="btn-primary" disabled>Conferma Squadra</button>
+        </div>
+
+        <footer>
+            <p>&copy; 2026. Tutti i diritti riservati. <span id="app-version"
+                    style="opacity: 0.5; margin-left: 10px;"></span></p>
+        </footer>
         </div>
     </main>
 
@@ -194,9 +206,13 @@
             <span class="nav-icon">🏆</span>
             <span class="nav-label">Classifica</span>
         </div>
-        <div class="nav-item" data-target="user-info"> <!-- Using user-info as a placeholder for Profile/Rules -->
+        <div class="nav-item" data-target="user-info">
             <span class="nav-icon">📜</span>
             <span class="nav-label">Regole</span>
+        </div>
+        <div id="nav-admin" class="nav-item" data-target="admin-view" style="display: none;">
+            <span class="nav-icon">⚙️</span>
+            <span class="nav-label">Admin</span>
         </div>
     </nav>
 
