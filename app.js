@@ -72,15 +72,34 @@ if (logoutBtn && window.auth) {
     });
 }
 
+// CONFIGURATION
+const allowedEmails = [
+    "carlo.grigioni@gmail.com",
+    // Add other allowed emails here
+];
+
 if (window.auth) {
     window.authUtils.onAuthStateChanged(window.auth, (user) => {
         const loginView = document.getElementById('login-view');
         const dashboardView = document.getElementById('dashboard-view');
         const mainTitle = document.getElementById('main-title');
         const mainSubtitle = document.getElementById('main-subtitle');
+        const authError = document.getElementById('auth-error'); // Make sure this element exists in HTML
 
         if (user) {
-            // LOGGED IN
+            // CHECK WHITELIST
+            if (!allowedEmails.includes(user.email)) {
+                console.warn("Unauthorized access attempt:", user.email);
+                window.authUtils.signOut(window.auth);
+                if (authError) {
+                    authError.style.display = 'block';
+                    authError.textContent = `Accesso negato per ${user.email}. Non sei in lista.`;
+                }
+                return;
+            }
+
+            // AUTHORIZED & LOGGED IN
+            if (authError) authError.style.display = 'none';
             if (loginView) loginView.style.display = 'none';
             if (dashboardView) dashboardView.style.display = 'block';
 
@@ -95,6 +114,7 @@ if (window.auth) {
             loadMarketData();
         } else {
             // LOGGED OUT
+            // Don't hide error here immediately to let user see it if they were just kicked out
             if (loginView) loginView.style.display = 'block';
             if (dashboardView) dashboardView.style.display = 'none';
 
