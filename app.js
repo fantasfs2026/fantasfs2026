@@ -666,6 +666,11 @@ async function loadAdminMarket() {
     const grid = document.getElementById('admin-actions-grid');
     if (!select || !grid) return;
 
+    if (!window.dbUtils) {
+        console.warn("dbUtils not ready yet.");
+        return;
+    }
+
     try {
         const { getDocs, collection, query, orderBy } = window.dbUtils;
         const q = query(collection(window.db, "market"), orderBy("name"));
@@ -706,13 +711,14 @@ async function recordEvent(actionKey) {
     const action = SCORING_ACTIONS[actionKey];
     if (!confirm(`Vuoi registrare "${action.label}" per questo personaggio?`)) return;
 
-    const { writeBatch, doc, collection, getDocs, addDoc } = window.dbUtils;
+    if (!window.dbUtils) return;
+    const { writeBatch, doc, collection, getDocs, getDoc } = window.dbUtils;
     const batch = writeBatch(window.db);
 
     try {
         // 1. Update character score in market
         const charRef = doc(window.db, "market", charId);
-        const charSnap = await window.dbUtils.getDoc(charRef);
+        const charSnap = await getDoc(charRef);
         const charData = charSnap.data();
         const newCharScore = (charData.fantaScore || 0) + action.pts;
         batch.update(charRef, { fantaScore: newCharScore });
@@ -763,6 +769,8 @@ async function recordEvent(actionKey) {
 async function loadAdminEvents() {
     const container = document.getElementById('admin-events-log');
     if (!container) return;
+
+    if (!window.dbUtils) return;
 
     try {
         const { getDocs, collection, query, orderBy, limit } = window.dbUtils;
@@ -874,7 +882,7 @@ document.getElementById('save-scores-btn').onclick = async function () {
 };
 
 // Set App Version (Matching SW)
-const APP_VERSION = "v10.0";
+const APP_VERSION = "v10.1";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
