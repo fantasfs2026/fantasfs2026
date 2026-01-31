@@ -180,11 +180,22 @@ async function handleUserProfile(user) {
                     // Hide draft bar if it was visible
                     const draftBar = document.getElementById('draft-bar');
                     if (draftBar) draftBar.style.display = 'none';
-                    // Disable market interaction? Or just styling
+
+                    // RESET TEAM BUTTON LOGIC
+                    const resetBtn = document.getElementById('reset-team-btn');
+                    const deadline = new Date('2026-02-15T00:00:00'); // Enabled until Feb 14 midnight
+                    const now = new Date();
+
+                    if (resetBtn && now < deadline) {
+                        resetBtn.style.display = 'block';
+                        resetBtn.onclick = () => confirmResetTeam();
+                    } else if (resetBtn) {
+                        resetBtn.style.display = 'none';
+                    }
                 } else {
                     renderEmptyTeamState();
-                    // Ensure drafts are cleared if switching users
-                    // currentDraft = ... (reset logic if needed)
+                    const resetBtn = document.getElementById('reset-team-btn');
+                    if (resetBtn) resetBtn.style.display = 'none';
                 }
             }
         });
@@ -450,6 +461,26 @@ async function saveTeamToFirestore(totalCost) {
     location.reload(); // Reload to refresh state cleanly
 }
 
+async function confirmResetTeam() {
+    if (!confirm("Sei sicuro di voler eliminare la tua squadra? Avrai di nuovo 100 crediti per rifarla.")) return;
+
+    const { doc, updateDoc } = window.dbUtils;
+    if (!window.auth.currentUser) return;
+
+    try {
+        const userDocRef = doc(window.db, "users", window.auth.currentUser.uid);
+        await updateDoc(userDocRef, {
+            team: null,
+            credits: 100
+        });
+        alert("Squadra eliminata. Ora puoi crearne una nuova! 🔄");
+        location.reload();
+    } catch (error) {
+        console.error("Error resetting team:", error);
+        alert("Errore durante il reset: " + error.message);
+    }
+}
+
 // ------------------------------------------------------------------
 // NAVIGATION & LEADERBOARD LOGIC
 // ------------------------------------------------------------------
@@ -603,6 +634,11 @@ window.openUserTeamModal = function (userData) {
         if (e.target === modal) modal.style.display = 'none';
     };
 };
+
+// Set App Version (Matching SW)
+const APP_VERSION = "v7.1";
+const versionEl = document.getElementById('app-version');
+if (versionEl) versionEl.textContent = APP_VERSION;
 
 // Call init navigation once DOM is ready (or here if deferred)
 document.addEventListener('DOMContentLoaded', initNavigation);

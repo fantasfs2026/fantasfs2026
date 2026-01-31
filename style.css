@@ -470,6 +470,16 @@ h1 {
     cursor: pointer;
 }
 
+.btn-text:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.danger-text {
+    color: #ef4444 !important;
+    font-size: 0.9rem !important;
+    margin-top: 1.5rem !important;
+}
+
 footer {
     margin-top: 3rem;
     font-size: 0.8rem;
