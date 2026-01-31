@@ -69,31 +69,30 @@
         <button onclick="document.getElementById('ios-hint').style.display='none'">Chiudi</button>
     </div>
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from
-    "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from
-    "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-    // Firebase configuration
-    const firebaseConfig = {
-    apiKey: "AIzaSyCSCj5PAkFr9Rl-yA2-qBeE4GacWoS63b0",
-    authDomain: "fantasfs2026.firebaseapp.com",
-    projectId: "fantasfs2026",
-    storageBucket: "fantasfs2026.firebasestorage.app",
-    messagingSenderId: "794313055029",
-    appId: "1:794313055029:web:7ac9b30e0b603638dd8a7c"
-    };
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCSCj5PAkFr9Rl-yA2-qBeE4GacWoS63b0",
+            authDomain: "fantasfs2026.firebaseapp.com",
+            projectId: "fantasfs2026",
+            storageBucket: "fantasfs2026.firebasestorage.app",
+            messagingSenderId: "794313055029",
+            appId: "1:794313055029:web:7ac9b30e0b603638dd8a7c"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
-    window.db = db;
-    window.dbUtils = { doc, getDoc, setDoc, onSnapshot };
-    window.auth = auth;
-    window.authUtils = { provider, signInWithPopup, signOut, onAuthStateChanged };
+        window.db = db;
+        window.dbUtils = { doc, getDoc, setDoc, onSnapshot };
+        window.auth = auth;
+        window.authUtils = { provider, signInWithPopup, signOut, onAuthStateChanged };
     </script>
 
     <script src="app.js" defer></script>
