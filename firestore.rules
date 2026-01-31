@@ -4,30 +4,32 @@ service cloud.firestore {
     
     // Helper function to check if user is whitelisted
     function isWhitelisted() {
-      // Check both exact match and lowercase to handle casing differences
       return exists(/databases/$(database)/documents/allowed_users/$(request.auth.token.email)) ||
              exists(/databases/$(database)/documents/allowed_users/$(request.auth.token.email.lower()));
     }
 
-    // USERS: TEMPORARILY OPEN FOR SEEDING
-    match /users/{userId} {
-      // allow create: if request.auth != null && request.auth.uid == userId;
-      // allow read, update: if request.auth != null && request.auth.uid == userId && isWhitelisted();
-      allow read, write: if true;
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // ALLOWED_USERS: Read-only for authenticated users (to check their own status)
-    // Write restricted to admins (or temporarily public for seeding)
+    // USERS: Owner or Admin
+    match /users/{userId} {
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if (request.auth != null && request.auth.uid == userId) || isAdmin();
+    }
+
+    // ALLOWED_USERS: Read for all auth, Write for Admin
     match /allowed_users/{email} {
       allow read: if request.auth != null;
-      // CHANGE THIS TO 'if true' TEMPORARILY TO SEED, THEN BACK TO 'if false' OR ADMIN ONLY
-      allow write: if false; 
+      allow write: if isAdmin(); 
     }
 
-    // MARKET: Public read, Write restricted (Temporarily Open)
+    // MARKET: Public read, Write for Admin
     match /market/{itemId} {
       allow read: if true;
-      allow write: if true; // Temporarily open for seeding
+      allow write: if isAdmin(); 
     }
   }
 }
