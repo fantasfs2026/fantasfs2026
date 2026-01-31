@@ -74,15 +74,35 @@ if (logoutBtn && window.auth) {
 
 if (window.auth) {
     window.authUtils.onAuthStateChanged(window.auth, (user) => {
+        const loginView = document.getElementById('login-view');
+        const dashboardView = document.getElementById('dashboard-view');
+        const mainTitle = document.getElementById('main-title');
+        const mainSubtitle = document.getElementById('main-subtitle');
+
         if (user) {
-            loginBtn.style.display = 'none';
-            userInfo.style.display = 'flex';
-            userName.textContent = user.displayName;
-            userPhoto.src = user.photoURL;
+            // LOGGED IN
+            if (loginView) loginView.style.display = 'none';
+            if (dashboardView) dashboardView.style.display = 'block';
+
+            if (mainTitle) mainTitle.textContent = "Area Personale";
+            if (mainSubtitle) mainSubtitle.style.display = 'none';
+
+            // Populate User Info
+            if (userName) userName.textContent = user.displayName;
+            if (userPhoto) userPhoto.src = user.photoURL;
+
             handleUserProfile(user);
+            loadMarketData();
         } else {
-            loginBtn.style.display = 'inline-block';
-            userInfo.style.display = 'none';
+            // LOGGED OUT
+            if (loginView) loginView.style.display = 'block';
+            if (dashboardView) dashboardView.style.display = 'none';
+
+            if (mainTitle) mainTitle.textContent = "Benvenuto";
+            if (mainSubtitle) {
+                mainSubtitle.textContent = "Accedi per visualizzare la tua squadra";
+                mainSubtitle.style.display = 'block';
+            }
         }
     });
 }
