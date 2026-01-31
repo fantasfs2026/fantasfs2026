@@ -154,3 +154,31 @@ footer {
         padding: 3rem 1.5rem;
     }
 }
+
+.btn-install {
+    display: none;
+    margin-top: 2rem;
+    padding: 1rem 2.5rem;
+    background: linear-gradient(135deg, var(--accent-color), var(--pink));
+    border: none;
+    border-radius: 100px;
+    color: white;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px var(--accent-glow);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.btn-install:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 40px var(--accent-glow);
+    filter: brightness(1.1);
+}
+
+.btn-install:active {
+    transform: translateY(-2px) scale(0.98);
+}
