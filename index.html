@@ -77,6 +77,33 @@
                         </div>
                     </div>
                 </div>
+
+                <div id="market-section" class="market-section" style="display: none;">
+                    <div class="divider"></div>
+                    <h2>Quotazioni</h2>
+
+                    <div class="market-category">
+                        <h3>🏟️ Circoli</h3>
+                        <div id="list-circolo" class="market-list">
+                            <!-- Items will be injected here -->
+                            <div class="loading-item">Caricamento...</div>
+                        </div>
+                    </div>
+
+                    <div class="market-category">
+                        <h3>👥 Equipe Nazionale</h3>
+                        <div id="list-equipe" class="market-list">
+                            <div class="loading-item">Caricamento...</div>
+                        </div>
+                    </div>
+
+                    <div class="market-category">
+                        <h3>🌟 Ospiti</h3>
+                        <div id="list-ospite" class="market-list">
+                            <div class="loading-item">Caricamento...</div>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <footer>
@@ -93,7 +120,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         // Firebase configuration
@@ -112,7 +139,7 @@
         const provider = new GoogleAuthProvider();
 
         window.db = db;
-        window.dbUtils = { doc, getDoc, setDoc, onSnapshot };
+        window.dbUtils = { doc, getDoc, setDoc, onSnapshot, collection, getDocs, query, orderBy };
         window.auth = auth;
         window.authUtils = { provider, signInWithPopup, signOut, onAuthStateChanged };
     </script>
