@@ -276,7 +276,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, getDocs, query, orderBy, writeBatch, limit, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         // Firebase configuration
         const firebaseConfig = {
@@ -296,7 +296,7 @@
         window.db = db;
         window.dbUtils = { doc, getDoc, setDoc, updateDoc, onSnapshot, collection, getDocs, query, orderBy, writeBatch, limit, where };
         window.auth = auth;
-        window.authUtils = { provider, signInWithPopup, signOut, onAuthStateChanged };
+        window.authUtils = { provider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged };
     </script>
 
     <script src="app.js" defer></script>

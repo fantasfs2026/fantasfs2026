@@ -1,5 +1,5 @@
 // Set App Version (Matching SW) - TOP LEVEL FOR DIAGNOSTICS
-const APP_VERSION = "v10.17";
+const APP_VERSION = "v10.18";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
@@ -78,14 +78,28 @@ function initApp() {
 
     if (loginBtn) {
         loginBtn.addEventListener('click', () => {
-            const { provider, signInWithPopup } = window.authUtils;
-            signInWithPopup(window.auth, provider)
-                .then((result) => console.log('User signed in:', result.user))
+            const { provider, signInWithRedirect } = window.authUtils;
+            // Use redirect for better mobile/iOS support
+            signInWithRedirect(window.auth, provider)
                 .catch((error) => {
                     console.error('Sign in error:', error);
                     alert('Errore di autenticazione: ' + error.message);
                 });
         });
+    }
+
+    // Handle Redirect Result on Load
+    if (window.authUtils && window.authUtils.getRedirectResult) {
+        window.authUtils.getRedirectResult(window.auth)
+            .then((result) => {
+                if (result) console.log('Redirect sign in success:', result.user);
+            })
+            .catch((error) => {
+                console.error('Redirect sign in error:', error);
+                if (error.code !== 'auth/web-storage-unsupported') {
+                    alert('Errore redirect: ' + error.message);
+                }
+            });
     }
 
     if (logoutBtn) {
