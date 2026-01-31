@@ -815,6 +815,13 @@ footer {
     gap: 1rem;
     position: relative;
     overflow: hidden;
+    cursor: pointer;
+    /* Visual feedback */
+    transition: background 0.2s;
+}
+
+.leaderboard-item:active {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .leaderboard-item.top-3 {

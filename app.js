@@ -558,6 +558,7 @@ async function loadLeaderboard() {
 
 // Global scope for onclick access (or attach via addEventListener)
 window.openUserTeamModal = function (userData) {
+    console.log("Opening modal for user:", userData);
     const modal = document.getElementById('user-team-modal');
     const photoEl = document.getElementById('detail-user-photo');
     const nameEl = document.getElementById('detail-user-name');
