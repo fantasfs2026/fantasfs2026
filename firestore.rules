@@ -31,6 +31,8 @@ service cloud.firestore {
     match /market/{itemId} {
       allow read: if true;
       allow write: if isAdmin(); 
+    }
+
     // EVENTS: Public read for logs, Write for Admin
     match /events/{eventId} {
       allow read: if request.auth != null && isWhitelisted();
