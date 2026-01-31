@@ -79,12 +79,44 @@ if (window.auth) {
             userInfo.style.display = 'flex';
             userName.textContent = user.displayName;
             userPhoto.src = user.photoURL;
+            handleUserProfile(user);
         } else {
             loginBtn.style.display = 'inline-block';
             userInfo.style.display = 'none';
         }
     });
 }
+
+async function handleUserProfile(user) {
+    const { doc, getDoc, setDoc, onSnapshot } = window.dbUtils;
+    const userDocRef = doc(window.db, "users", user.uid);
+
+    try {
+        const userDoc = await getDoc(userDocRef);
+
+        if (!userDoc.exists()) {
+            // New user initialization
+            await setDoc(userDocRef, {
+                displayName: user.displayName,
+                email: user.email,
+                credits: 100, // Initial 100 points
+                createdAt: new Date()
+            });
+        }
+
+        // Live credits listener
+        onSnapshot(userDocRef, (doc) => {
+            const data = doc.data();
+            if (data && document.getElementById('user-credits')) {
+                document.getElementById('user-credits').textContent = `Crediti: ${data.credits}`;
+            }
+        });
+
+    } catch (error) {
+        console.error("Error managing user profile:", error);
+    }
+}
+
 
 
 // iOS Detection & Hint
