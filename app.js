@@ -475,6 +475,7 @@ function handleNavigation(targetId) {
     const leaderboardView = document.getElementById('leaderboard-view');
     const mainTitle = document.getElementById('main-title');
     const draftBar = document.getElementById('draft-bar');
+    const card = document.querySelector('.card');
 
     // Hide all main views
     dashboardView.style.display = 'none';
@@ -483,6 +484,7 @@ function handleNavigation(targetId) {
     // Logic for specific targets
     if (targetId === 'dashboard-view') {
         dashboardView.style.display = 'block';
+        card.classList.remove('compact'); // Normal Mode
         if (mainTitle) mainTitle.textContent = "Area Personale";
         // Restore draft bar if applicable
         if (Object.values(currentDraft).flat().length > 0) {
@@ -491,13 +493,15 @@ function handleNavigation(targetId) {
     }
     else if (targetId === 'leaderboard-view') {
         leaderboardView.style.display = 'block';
-        draftBar.style.display = 'none'; // Hide draft bar in leaderboard
+        draftBar.style.display = 'none';
+        card.classList.add('compact'); // Compact Mode
         if (mainTitle) mainTitle.textContent = "Classifica";
         loadLeaderboard();
     }
     else if (targetId === 'user-info') {
         // Special case: Scroll to Rules in Dashboard
         dashboardView.style.display = 'block';
+        card.classList.remove('compact');
         if (mainTitle) mainTitle.textContent = "Regolamento";
         const rules = document.querySelector('.rules-container');
         if (rules) rules.scrollIntoView({ behavior: 'smooth' });
