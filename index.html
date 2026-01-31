@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#fb923c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="fantasfs">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,6 +43,13 @@
             </footer>
         </div>
     </main>
+
+    <div id="ios-hint" class="ios-hint">
+        <p>Per installare l'app su iPhone: tocca <img src="https://img.icons8.com/ios/50/ffffff/share.png"
+                alt="share icon" width="20"> e poi <strong>"Aggiungi alla schermata Home"</strong></p>
+        <button onclick="document.getElementById('ios-hint').style.display='none'">Chiudi</button>
+    </div>
+
     <script src="app.js" defer></script>
 </body>
 

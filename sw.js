@@ -7,7 +7,8 @@ const ASSETS_TO_CACHE = [
     './manifest.json',
     './icon-192.png',
     './icon-512.png',
-    './Sfondo_def.png'
+    './Sfondo_def.png',
+    './Sfondo_optimized.jpg'
 ];
 
 self.addEventListener('install', (event) => {

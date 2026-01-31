@@ -46,3 +46,27 @@ window.addEventListener('appinstalled', (event) => {
         installBtn.style.display = 'none';
     }
 });
+
+// iOS Detection & Hint
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+if (isIOS && !isStandalone) {
+    const iosHint = document.getElementById('ios-hint');
+    if (iosHint) {
+        iosHint.style.display = 'block';
+    }
+}
+
+// Background Image Swap (Optimized)
+window.addEventListener('load', () => {
+    const bg = document.querySelector('.background-image');
+    if (bg) {
+        // Try to use optimized image
+        const img = new Image();
+        img.src = 'Sfondo_optimized.jpg';
+        img.onload = () => {
+            bg.style.backgroundImage = "url('Sfondo_optimized.jpg')";
+        };
+    }
+});
