@@ -128,17 +128,71 @@ async function handleUserProfile(user) {
                 updateSlot('slot-equipe', team.equipe);
                 updateSlot('slot-ospite', team.ospite);
 
-                // Show Team Section
+                // Show Sections
                 const teamSection = document.getElementById('team-section');
+                const marketSection = document.getElementById('market-section');
                 const rulesContainer = document.querySelector('.rules-container');
+
                 if (teamSection) teamSection.style.display = 'block';
-                // Optional: Hide rules to clean up UI when logged in
+                if (marketSection) {
+                    marketSection.style.display = 'block';
+                    loadMarketData(); // Load market only when logged in
+                }
                 if (rulesContainer) rulesContainer.style.display = 'none';
             }
         });
 
     } catch (error) {
         console.error("Error managing user profile:", error);
+    }
+}
+
+let marketLoaded = false;
+async function loadMarketData() {
+    if (marketLoaded) return; // Prevent double loads
+    marketLoaded = true;
+
+    const { collection, getDocs, query, orderBy } = window.dbUtils;
+
+    try {
+        const q = query(collection(window.db, "market"), orderBy("name"));
+        const querySnapshot = await getDocs(q);
+
+        // Reset lists
+        const lists = {
+            'Circolo': document.getElementById('list-circolo'),
+            'Equipe': document.getElementById('list-equipe'),
+            'Ospite': document.getElementById('list-ospite')
+        };
+
+        Object.values(lists).forEach(el => {
+            if (el) el.innerHTML = ''; // Clear loading
+        });
+
+        if (querySnapshot.empty) {
+            Object.values(lists).forEach(el => {
+                if (el) el.innerHTML = '<div class="loading-item">Nessun elemento disponibile</div>';
+            });
+            return;
+        }
+
+        querySnapshot.forEach((doc) => {
+            const item = doc.data();
+            const listContainer = lists[item.category];
+
+            if (listContainer) {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'market-item';
+                itemEl.innerHTML = `
+                    <span class="item-name">${item.name}</span>
+                    <span class="item-price">${item.price} pts</span>
+                `;
+                listContainer.appendChild(itemEl);
+            }
+        });
+
+    } catch (error) {
+        console.error("Error loading market:", error);
     }
 }
 
