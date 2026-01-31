@@ -14,10 +14,11 @@ service cloud.firestore {
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // USERS: Owner or Admin
+    // USERS: Read for all whitelisted, Write for Owner or Admin
     match /users/{userId} {
       allow create: if request.auth != null && request.auth.uid == userId;
-      allow read, write: if (request.auth != null && request.auth.uid == userId) || isAdmin();
+      allow read: if request.auth != null && isWhitelisted();
+      allow write: if (request.auth != null && request.auth.uid == userId) || isAdmin();
     }
 
     // ALLOWED_USERS: Read for all auth, Write for Admin
