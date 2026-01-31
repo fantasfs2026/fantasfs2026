@@ -167,7 +167,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         // Firebase configuration
@@ -186,7 +186,7 @@
         const provider = new GoogleAuthProvider();
 
         window.db = db;
-        window.dbUtils = { doc, getDoc, setDoc, onSnapshot, collection, getDocs, query, orderBy };
+        window.dbUtils = { doc, getDoc, setDoc, updateDoc, onSnapshot, collection, getDocs, query, orderBy };
         window.auth = auth;
         window.authUtils = { provider, signInWithPopup, signOut, onAuthStateChanged };
     </script>
