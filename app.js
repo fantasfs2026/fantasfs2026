@@ -578,12 +578,15 @@ async function loadLeaderboard() {
             let itemClass = "leaderboard-item";
             if (rank <= 3) itemClass += ` top-${rank}`;
 
+            const isMe = window.auth.currentUser && doc.id === window.auth.currentUser.uid;
+            if (isMe) itemClass += " is-me";
+
             listContainer.innerHTML += `
                 <div class="${itemClass}" onclick='openUserTeamModal(${JSON.stringify(userData).replace(/'/g, "&#39;")})'>
                     <div class="rank-badge">${rank}</div>
                     <img src="${photo}" alt="${name}" class="user-avatar-small">
                     <div class="leaderboard-info">
-                        <span class="leaderboard-name">${name}</span>
+                        <span class="leaderboard-name">${name} ${isMe ? '<span class="me-badge">Tu</span>' : ''}</span>
                     </div>
                     <span class="leaderboard-score">${score} pts</span>
                 </div>
@@ -766,7 +769,7 @@ document.getElementById('save-scores-btn').onclick = async function () {
 };
 
 // Set App Version (Matching SW)
-const APP_VERSION = "v8.9";
+const APP_VERSION = "v9.0";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
