@@ -431,6 +431,9 @@ function showCheckoutView(totalCost) {
     };
 
     const confirmBtn = document.getElementById('checkout-confirm-btn');
+    // Force enable on load
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = "Conferma Squadra";
 
     confirmBtn.onclick = async () => {
         // Validation check
