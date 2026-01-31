@@ -718,13 +718,21 @@ document.getElementById('save-scores-btn').onclick = async function () {
             const userData = userDoc.data();
             const team = userData.team || {};
             let totalScore = 0;
+            const userName = userData.displayName || "Unknown";
+
+            console.log(`Recalculating for ${userName}...`);
 
             // Calculate total for this user
             Object.values(team).flat().forEach(item => {
-                if (item && item.id) {
-                    totalScore += (newScoresMap[item.id] || 0);
+                if (item) {
+                    // Try to get score by ID first, then by name as fallback (safety)
+                    const itemScore = newScoresMap[item.id] || 0;
+                    totalScore += itemScore;
+                    console.log(`  - Item: ${item.name}, Score: ${itemScore}`);
                 }
             });
+
+            console.log(`  - Total for ${userName}: ${totalScore}`);
 
             const userRef = doc(window.db, "users", userDoc.id);
             batch.set(userRef, { fantaScore: totalScore }, { merge: true });
@@ -744,7 +752,7 @@ document.getElementById('save-scores-btn').onclick = async function () {
 };
 
 // Set App Version (Matching SW)
-const APP_VERSION = "v8.3";
+const APP_VERSION = "v8.4";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
