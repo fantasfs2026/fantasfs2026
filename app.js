@@ -652,41 +652,146 @@ window.openUserTeamModal = function (userData) {
     };
 };
 
+const SCORING_ACTIONS = {
+    'canta': { label: '🎤 Canta', pts: 15 },
+    'parla': { label: '🗣️ Parla', pts: 5 },
+    'saluta': { label: '👋 Saluta', pts: 2 },
+    'battuta': { label: '🤣 Battuta', pts: 8 },
+    'errore': { label: '😱 Errore', pts: -10 },
+    'ospite': { label: '🌟 Ospite', pts: 20 }
+};
+
 async function loadAdminMarket() {
-    const container = document.getElementById('admin-market-list');
-    if (!container) return;
-    container.innerHTML = '<div class="loading-item">Caricamento personaggi...</div>';
+    const select = document.getElementById('admin-character-select');
+    const grid = document.getElementById('admin-actions-grid');
+    if (!select || !grid) return;
 
     try {
         const { getDocs, collection, query, orderBy } = window.dbUtils;
-        // Simplified query to avoid index requirement for now
         const q = query(collection(window.db, "market"), orderBy("name"));
         const snapshot = await getDocs(q);
 
-        container.innerHTML = '';
+        // Populate Character Select
+        select.innerHTML = '<option value="">Scegli un personaggio...</option>';
         snapshot.forEach(doc => {
             const item = doc.data();
-            const score = item.fantaScore || 0;
+            select.innerHTML += `<option value="${doc.id}">${item.name} (${item.category})</option>`;
+        });
 
-            container.innerHTML += `
-                <div class="market-item admin-mode">
-                    <div class="leaderboard-info">
-                        <span class="item-name">${item.name}</span>
-                        <small style="opacity:0.6; display:block;">${item.category}</small>
-                    </div>
-                    <input type="number" class="admin-score-input" 
-                           data-id="${doc.id}" value="${score}" step="1">
-                </div>
+        // Populate Actions Grid
+        grid.innerHTML = '';
+        Object.entries(SCORING_ACTIONS).forEach(([key, action]) => {
+            grid.innerHTML += `
+                <button class="action-btn" onclick="recordEvent('${key}')">
+                    <span>${action.label}</span>
+                    <span class="pts">${action.pts > 0 ? '+' : ''}${action.pts} pts</span>
+                </button>
             `;
         });
 
-        if (snapshot.empty) {
-            container.innerHTML = '<div class="loading-item">Nessun personaggio nel mercato.</div>';
-        }
+        loadAdminEvents();
 
     } catch (error) {
         console.error("Error loading admin market:", error);
-        container.innerHTML = `<div class="loading-item" style="color:red">Errore: ${error.message}</div>`;
+    }
+}
+
+async function recordEvent(actionKey) {
+    const charId = document.getElementById('admin-character-select').value;
+    if (!charId) {
+        alert("Per favore, seleziona prima un personaggio!");
+        return;
+    }
+
+    const action = SCORING_ACTIONS[actionKey];
+    if (!confirm(`Vuoi registrare "${action.label}" per questo personaggio?`)) return;
+
+    const { writeBatch, doc, collection, getDocs, addDoc } = window.dbUtils;
+    const batch = writeBatch(window.db);
+
+    try {
+        // 1. Update character score in market
+        const charRef = doc(window.db, "market", charId);
+        const charSnap = await window.dbUtils.getDoc(charRef);
+        const charData = charSnap.data();
+        const newCharScore = (charData.fantaScore || 0) + action.pts;
+        batch.update(charRef, { fantaScore: newCharScore });
+
+        // 2. Log the event
+        const eventRef = doc(collection(window.db, "events"));
+        batch.set(eventRef, {
+            characterId: charId,
+            characterName: charData.name,
+            actionKey: actionKey,
+            actionLabel: action.label,
+            points: action.pts,
+            timestamp: new Date().toISOString()
+        });
+
+        // 3. Propagate to users (Targeted)
+        const usersSnapshot = await getDocs(collection(window.db, "users"));
+        let updatedCount = 0;
+
+        usersSnapshot.forEach(userDoc => {
+            const userData = userDoc.data();
+            const team = userData.team || {};
+            let hasCharacter = false;
+
+            // Check if user has this character in team
+            Object.values(team).flat().forEach(item => {
+                if (item && item.id === charId) hasCharacter = true;
+            });
+
+            if (hasCharacter) {
+                const userRef = doc(window.db, "users", userDoc.id);
+                const newUserScore = (userData.fantaScore || 0) + action.pts;
+                batch.update(userRef, { fantaScore: newUserScore });
+                updatedCount++;
+            }
+        });
+
+        await batch.commit();
+        alert(`Evento registrato! Personaggio: ${charData.name}. Utenti aggiornati: ${updatedCount}. 🚀`);
+        loadAdminEvents();
+
+    } catch (error) {
+        console.error("Error recording event:", error);
+        alert("Errore durante la registrazione: " + error.message);
+    }
+}
+
+async function loadAdminEvents() {
+    const container = document.getElementById('admin-events-log');
+    if (!container) return;
+
+    try {
+        const { getDocs, collection, query, orderBy, limit } = window.dbUtils;
+        const q = query(collection(window.db, "events"), orderBy("timestamp", "desc"), limit(20));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            container.innerHTML = '<div class="loading-item">Nessun evento registrato.</div>';
+            return;
+        }
+
+        container.innerHTML = '';
+        snapshot.forEach(docSnap => {
+            const ev = docSnap.data();
+            const time = new Date(ev.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const ptsClass = ev.points >= 0 ? 'positive' : 'negative';
+
+            container.innerHTML += `
+                <div class="event-item">
+                    <div class="event-info">
+                        <span class="event-char">${ev.characterName}</span>
+                        <span class="event-action">${time} - ${ev.actionLabel}</span>
+                    </div>
+                    <span class="event-pts ${ptsClass}">${ev.points > 0 ? '+' : ''}${ev.points}</span>
+                </div>
+            `;
+        });
+    } catch (error) {
+        console.error("Error loading events:", error);
     }
 }
 
@@ -769,7 +874,7 @@ document.getElementById('save-scores-btn').onclick = async function () {
 };
 
 // Set App Version (Matching SW)
-const APP_VERSION = "v9.1";
+const APP_VERSION = "v10.0";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 

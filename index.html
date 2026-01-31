@@ -126,21 +126,34 @@
                     </div>
                 </div>
 
-                <!-- ADMIN VIEW (Hidden by default, only for role='admin') -->
+                <!-- ADMIN VIEW (v10.0 Event-Based) -->
                 <div id="admin-view" style="display: none; padding-bottom: 100px;">
                     <div class="leaderboard-header">
-                        <p class="description">Gestione Punti Personaggi</p>
+                        <p class="description">Gestione Eventi e Punteggi</p>
                     </div>
 
-                    <div id="admin-market-list" class="market-list">
-                        <!-- Populated dynamically with inputs -->
-                        <div class="loading-item">Caricamento mercato...</div>
+                    <div class="admin-controls-card">
+                        <label for="admin-character-select"
+                            style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; opacity: 0.8;">
+                            1. Seleziona Personaggio
+                        </label>
+                        <select id="admin-character-select" class="admin-select">
+                            <option value="">Scegli un personaggio...</option>
+                        </select>
+
+                        <label style="display: block; margin: 1.5rem 0 0.5rem; font-size: 0.9rem; opacity: 0.8;">
+                            2. Registra Azione
+                        </label>
+                        <div id="admin-actions-grid" class="actions-grid">
+                            <!-- Populated dynamically via SCORING_ACTIONS -->
+                        </div>
                     </div>
 
-                    <div style="margin-top: 2rem; text-align: center;">
-                        <button id="save-scores-btn" class="btn-primary" style="width: 100%; padding: 1rem;">
-                            Salva e Aggiorna Classifica
-                        </button>
+                    <div class="divider" style="margin: 2rem 0;"></div>
+
+                    <h3 style="font-size: 1rem; margin-bottom: 1rem;">Ultimi Eventi Registrati</h3>
+                    <div id="admin-events-log" class="events-log">
+                        <div class="loading-item">Nessun evento registrato.</div>
                     </div>
                 </div>
             </section>
@@ -224,7 +237,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, getDocs, query, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, getDocs, query, orderBy, writeBatch, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         // Firebase configuration
@@ -243,7 +256,7 @@
         const provider = new GoogleAuthProvider();
 
         window.db = db;
-        window.dbUtils = { doc, getDoc, setDoc, updateDoc, onSnapshot, collection, getDocs, query, orderBy, writeBatch };
+        window.dbUtils = { doc, getDoc, setDoc, updateDoc, onSnapshot, collection, getDocs, query, orderBy, writeBatch, limit };
         window.auth = auth;
         window.authUtils = { provider, signInWithPopup, signOut, onAuthStateChanged };
     </script>
