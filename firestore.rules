@@ -4,7 +4,9 @@ service cloud.firestore {
     
     // Helper function to check if user is whitelisted
     function isWhitelisted() {
-      return exists(/databases/$(database)/documents/allowed_users/$(request.auth.token.email));
+      // Check both exact match and lowercase to handle casing differences
+      return exists(/databases/$(database)/documents/allowed_users/$(request.auth.token.email)) ||
+             exists(/databases/$(database)/documents/allowed_users/$(request.auth.token.email.lower()));
     }
 
     // USERS: Each user can read/write only their own document
