@@ -25,7 +25,7 @@
     <main class="container">
         <div class="card">
             <header>
-                <div class="badge">2026</div>
+                <div class="badge">SFS 2026</div>
                 <h1 id="main-title">Benvenuto</h1>
                 <p id="main-subtitle" class="main-text">Accedi per iniziare</p>
             </header>
@@ -67,9 +67,9 @@
                         <p class="description">Hai <strong>100 punti</strong> a disposizione. Con il tuo budget puoi
                             acquistare:</p>
                         <ul class="rules-list">
-                            <li>Un <strong>Circolo</strong></li>
-                            <li>Un membro di <strong>Equipe Nazionale</strong></li>
-                            <li>Un <strong>Ospite</strong></li>
+                            <li>Max 2 <strong>Circoli</strong></li>
+                            <li>Max 2 membri di <strong>Equipe Nazionale</strong></li>
+                            <li>Max 1 <strong>Ospite</strong></li>
                         </ul>
                     </div>
 
@@ -77,22 +77,9 @@
                     <div id="team-section" class="team-section">
                         <div class="divider"></div>
                         <h2>La Tua Squadra</h2>
-                        <div class="team-grid">
-                            <div class="team-slot" id="slot-circolo">
-                                <div class="slot-icon">🏟️</div>
-                                <div class="slot-label">Circolo</div>
-                                <div class="slot-value">--</div>
-                            </div>
-                            <div class="team-slot" id="slot-equipe">
-                                <div class="slot-icon">👥</div>
-                                <div class="slot-label">Equipe Naz.</div>
-                                <div class="slot-value">--</div>
-                            </div>
-                            <div class="team-slot" id="slot-ospite">
-                                <div class="slot-icon">🌟</div>
-                                <div class="slot-label">Ospite</div>
-                                <div class="slot-value">--</div>
-                            </div>
+                        <div id="team-display-container" class="team-grid">
+                            <!-- Populated dynamically -->
+                            <div class="loading-item">Nessuna squadra formata</div>
                         </div>
                     </div>
 
@@ -124,6 +111,15 @@
                     </div>
                 </div>
             </section>
+
+            <!-- STICKY ACTION BAR for Draft Mode -->
+            <div id="draft-bar" class="draft-bar" style="display: none;">
+                <div class="draft-info">
+                    <span id="draft-cost">Costo: 0</span>
+                    <span id="draft-count" style="font-size: 0.8rem; opacity: 0.8">0/5</span>
+                </div>
+                <button id="save-team-btn" class="btn-primary" disabled>Conferma Squadra</button>
+            </div>
 
             <footer>
                 <p>&copy; 2026. Tutti i diritti riservati.</p>

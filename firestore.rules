@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is whitelisted
+    function isWhitelisted() {
+      return exists(/databases/$(database)/documents/allowed_users/$(request.auth.token.email));
+    }
+
+    // USERS: Each user can read/write only their own document
+    // AND must be in the whitelist
+    match /users/{userId} {
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read, update: if request.auth != null && request.auth.uid == userId && isWhitelisted();
+    }
+
+    // ALLOWED_USERS: Read-only for authenticated users (to check their own status)
+    // Write restricted to admins (or temporarily public for seeding)
+    match /allowed_users/{email} {
+      allow read: if request.auth != null;
+      // CHANGE THIS TO 'if true' TEMPORARILY TO SEED, THEN BACK TO 'if false' OR ADMIN ONLY
+      allow write: if false; 
+    }
+
+    // MARKET: Public read, Write restricted
+    match /market/{itemId} {
+      allow read: if true;
+      allow write: if false; // Admin only in future
+    }
+  }
+}

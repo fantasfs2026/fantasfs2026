@@ -14,7 +14,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // CONFIG: REPLACE WITH YOUR ACTUAL CONFIG
+        // CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyCSCj5PAkFr9Rl-yA2-qBeE4GacWoS63b0",
             authDomain: "fantasfs2026.firebaseapp.com",
@@ -29,36 +29,38 @@
 
         const initialData = [
             // Circoli
-            { name: "Circolo A", category: "Circolo", price: 20 },
-            { name: "Circolo B", category: "Circolo", price: 15 },
-            { name: "Circolo C", category: "Circolo", price: 25 },
+            { name: "Como", category: "Circolo", price: 5 },
+            { name: "Lodi", category: "Circolo", price: 8 },
+            { name: "Mantova", category: "Circolo", price: 2 },
 
             // Equipe
-            { name: "Mario Rossi", category: "Equipe", price: 50 },
-            { name: "Luigi Verdi", category: "Equipe", price: 45 },
-            { name: "Marco Bianchi", category: "Equipe", price: 60 },
+            { name: "Carlo", category: "Equipe", price: 3 },
+            { name: "Pietro", category: "Equipe", price: 4 },
+            { name: "Mauri", category: "Equipe", price: 5 },
 
             // Ospiti
-            { name: "Ospite VIP 1", category: "Ospite", price: 10 },
-            { name: "Ospite VIP 2", category: "Ospite", price: 12 },
-            { name: "Ospite VIP 3", category: "Ospite", price: 8 }
+            { name: "Eugenio", category: "Ospite", price: 10 }
         ];
 
         async function seed() {
             const status = document.getElementById('status');
             try {
-                // Clear existing (Optional - be careful in prod!)
-                // const snapshot = await getDocs(collection(db, "market"));
-                // snapshot.forEach(doc => deleteDoc(doc.ref));
-
+                // Clear existing market data to avoid duplicates
+                status.innerText += "\nClearing old data...";
                 const colRef = collection(db, "market");
+                const snapshot = await getDocs(colRef);
+                const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+                await Promise.all(deletePromises);
+                status.innerText += " DONE.";
 
+                // Add new data
+                status.innerText += "\nAdding new data...";
                 for (const item of initialData) {
                     await addDoc(colRef, item);
-                    status.innerText += `\nAdded ${item.name}`;
+                    status.innerText += `\nAdded ${item.name} (${item.price})`;
                 }
 
-                status.innerText += "\nDONE! You can verify in the app.";
+                status.innerText += "\n\nSUCCESS! Database updated.";
             } catch (error) {
                 console.error(error);
                 status.innerText += `\nERROR: ${error.message}`;

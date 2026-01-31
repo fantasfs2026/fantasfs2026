@@ -136,6 +136,15 @@ if (window.auth) {
     });
 }
 
+// TEAM & MARKET LOGIC
+let currentUserData = null;
+let marketData = [];
+let currentDraft = {
+    'Circolo': [],
+    'Equipe': [],
+    'Ospite': []
+};
+
 async function handleUserProfile(user) {
     const { doc, getDoc, setDoc, onSnapshot } = window.dbUtils;
     const userDocRef = doc(window.db, "users", user.uid);
@@ -144,50 +153,35 @@ async function handleUserProfile(user) {
         const userDoc = await getDoc(userDocRef);
 
         if (!userDoc.exists()) {
-            // New user initialization
             await setDoc(userDocRef, {
                 displayName: user.displayName,
                 email: user.email,
-                credits: 100, // Initial 100 points
-                role: "user", // Required by Security Rules
-                createdAt: new Date()
+                credits: 100,
+                role: "user",
+                createdAt: new Date(),
+                team: null // No team initially
             });
         }
 
-        // Live credits & Team listener
         onSnapshot(userDocRef, (doc) => {
             const data = doc.data();
             if (data) {
-                // Update Credits
-                if (document.getElementById('user-credits')) {
-                    document.getElementById('user-credits').textContent = `Crediti: ${data.credits}`;
+                currentUserData = data;
+                updateUserUI(data);
+
+                // If user has a team, show it and disable editing (or handle edit mode later)
+                // For now, if simple: if team exists, show it. If not, enable draft mode.
+                if (data.team) {
+                    renderMyTeam(data.team);
+                    // Hide draft bar if it was visible
+                    const draftBar = document.getElementById('draft-bar');
+                    if (draftBar) draftBar.style.display = 'none';
+                    // Disable market interaction? Or just styling
+                } else {
+                    renderEmptyTeamState();
+                    // Ensure drafts are cleared if switching users
+                    // currentDraft = ... (reset logic if needed)
                 }
-
-                // Update Team Slots
-                const team = data.team || {};
-
-                const updateSlot = (id, value) => {
-                    const el = document.querySelector(`#${id} .slot-value`);
-                    if (el) el.textContent = value || "Vuoto";
-                    if (value) el.style.color = "var(--accent-color)";
-                    else el.style.color = "var(--text-secondary)";
-                };
-
-                updateSlot('slot-circolo', team.circolo);
-                updateSlot('slot-equipe', team.equipe);
-                updateSlot('slot-ospite', team.ospite);
-
-                // Show Sections
-                const teamSection = document.getElementById('team-section');
-                const marketSection = document.getElementById('market-section');
-                const rulesContainer = document.querySelector('.rules-container');
-
-                if (teamSection) teamSection.style.display = 'block';
-                if (marketSection) {
-                    marketSection.style.display = 'block';
-                    loadMarketData(); // Load market only when logged in
-                }
-                if (rulesContainer) rulesContainer.style.display = 'none';
             }
         });
 
@@ -196,9 +190,66 @@ async function handleUserProfile(user) {
     }
 }
 
+function updateUserUI(data) {
+    if (document.getElementById('user-credits')) {
+        document.getElementById('user-credits').textContent = `Crediti: ${data.credits}`;
+    }
+}
+
+function renderEmptyTeamState() {
+    const container = document.getElementById('team-display-container');
+    if (container) {
+        container.innerHTML = '<div class="loading-item">Crea la tua squadra selezionando i componenti qui sotto!</div>';
+        container.style.display = 'block';
+        container.style.gridTemplateColumns = '1fr';
+    }
+}
+
+function renderMyTeam(team) {
+    const container = document.getElementById('team-display-container');
+    if (!container) return;
+
+    container.innerHTML = '';
+    container.style.display = 'grid';
+    // Restore grid layout
+    if (window.innerWidth > 400) container.style.gridTemplateColumns = 'repeat(3, 1fr)';
+
+    // Helper to generic slot
+    const createSlot = (label, icon, value) => {
+        return `
+        <div class="team-slot">
+            <div class="slot-icon">${icon}</div>
+            <div class="slot-label">${label}</div>
+            <div class="slot-value" style="color: var(--accent-color)">${value}</div>
+        </div>`;
+    };
+
+    // Render Circoli (Max 2)
+    if (team.Circolo) {
+        team.Circolo.forEach(item => {
+            container.innerHTML += createSlot("Circolo", "🏟️", item.name);
+        });
+    }
+
+    // Render Equipe (Max 2)
+    if (team.Equipe) {
+        team.Equipe.forEach(item => {
+            container.innerHTML += createSlot("Equipe", "👥", item.name);
+        });
+    }
+
+    // Render Ospite (Max 1)
+    if (team.Ospite) {
+        team.Ospite.forEach(item => {
+            container.innerHTML += createSlot("Ospite", "🌟", item.name);
+        });
+    }
+}
+
+
 let marketLoaded = false;
 async function loadMarketData() {
-    if (marketLoaded) return; // Prevent double loads
+    if (marketLoaded) return;
     marketLoaded = true;
 
     const { collection, getDocs, query, orderBy } = window.dbUtils;
@@ -207,31 +258,33 @@ async function loadMarketData() {
         const q = query(collection(window.db, "market"), orderBy("name"));
         const querySnapshot = await getDocs(q);
 
-        // Reset lists
+        marketData = []; // Reset local cache
+
+        // Reset lists UI
         const lists = {
             'Circolo': document.getElementById('list-circolo'),
             'Equipe': document.getElementById('list-equipe'),
             'Ospite': document.getElementById('list-ospite')
         };
-
-        Object.values(lists).forEach(el => {
-            if (el) el.innerHTML = ''; // Clear loading
-        });
+        Object.values(lists).forEach(el => { if (el) el.innerHTML = ''; });
 
         if (querySnapshot.empty) {
-            Object.values(lists).forEach(el => {
-                if (el) el.innerHTML = '<div class="loading-item">Nessun elemento disponibile</div>';
-            });
+            // Handle empty
             return;
         }
 
         querySnapshot.forEach((doc) => {
-            const item = doc.data();
-            const listContainer = lists[item.category];
+            const item = { id: doc.id, ...doc.data() };
+            marketData.push(item);
 
+            const listContainer = lists[item.category];
             if (listContainer) {
                 const itemEl = document.createElement('div');
                 itemEl.className = 'market-item';
+                itemEl.dataset.id = item.id;
+                itemEl.dataset.category = item.category;
+                itemEl.onclick = () => toggleSelection(itemEl, item);
+
                 itemEl.innerHTML = `
                     <span class="item-name">${item.name}</span>
                     <span class="item-price">${item.price} pts</span>
@@ -244,6 +297,116 @@ async function loadMarketData() {
         console.error("Error loading market:", error);
     }
 }
+
+function toggleSelection(element, item) {
+    // If user already has a team saved, prevent changes (optional: read only mode)
+    if (currentUserData && currentUserData.team) {
+        alert("Hai già confermato la tua squadra!");
+        return;
+    }
+
+    const category = item.category;
+    const list = currentDraft[category];
+
+    // Check if already selected
+    const index = list.findIndex(i => i.id === item.id);
+
+    if (index > -1) {
+        // Deselect
+        list.splice(index, 1);
+        element.classList.remove('selected');
+    } else {
+        // Select - Check Constraints
+        if (category === 'Circolo' && list.length >= 2) {
+            alert("Puoi selezionare massimo 2 Circoli.");
+            return;
+        }
+        if (category === 'Equipe' && list.length >= 2) {
+            alert("Puoi selezionare massimo 2 membri di Equipe.");
+            return;
+        }
+        if (category === 'Ospite' && list.length >= 1) {
+            alert("Puoi selezionare massimo 1 Ospite.");
+            return;
+        }
+
+        // Add
+        list.push(item);
+        element.classList.add('selected');
+    }
+
+    updateDraftUI();
+}
+
+function updateDraftUI() {
+    const draftBar = document.getElementById('draft-bar');
+    const costEl = document.getElementById('draft-cost');
+    const countEl = document.getElementById('draft-count');
+    const saveBtn = document.getElementById('save-team-btn');
+
+    let totalCost = 0;
+    let totalCount = 0;
+
+    Object.values(currentDraft).forEach(list => {
+        list.forEach(item => {
+            totalCost += item.price;
+            totalCount++;
+        });
+    });
+
+    if (totalCount > 0) {
+        draftBar.style.display = 'flex';
+        costEl.textContent = `Costo: ${totalCost}`;
+        countEl.textContent = `${totalCount}/5`;
+
+        // Validate Budget
+        const budget = currentUserData ? currentUserData.credits : 100;
+
+        if (totalCost > budget) {
+            saveBtn.disabled = true;
+            saveBtn.textContent = "Crediti Insufficienti";
+            costEl.style.color = "#ef4444";
+        } else {
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Conferma Squadra";
+            costEl.style.color = "var(--accent-color)";
+
+            // Re-bind click (simple way)
+            saveBtn.onclick = () => saveTeam(totalCost);
+        }
+
+    } else {
+        draftBar.style.display = 'none';
+    }
+}
+
+async function saveTeam(totalCost) {
+    if (!confirm(`Confermi la squadra per ${totalCost} crediti? Non potrai modificarla.`)) return;
+
+    const { doc, updateDoc } = window.dbUtils;
+    const userDocRef = doc(window.db, "users", window.auth.currentUser.uid);
+
+    try {
+        await updateDoc(userDocRef, {
+            team: currentDraft,
+            credits: currentUserData.credits - totalCost
+        });
+
+        // UI will update automatically via onSnapshot
+        alert("Squadra salvata con successo!");
+
+        // Clear Draft UI
+        document.getElementById('draft-bar').style.display = 'none';
+        // Clear selections visually
+        document.querySelectorAll('.market-item.selected').forEach(el => el.classList.remove('selected'));
+        currentDraft = { 'Circolo': [], 'Equipe': [], 'Ospite': [] };
+
+    } catch (e) {
+        console.error("Error saving team:", e);
+        alert("Errore durante il salvataggio: " + e.message);
+    }
+}
+
 
 
 
