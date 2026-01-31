@@ -1,5 +1,5 @@
 // Set App Version (Matching SW) - TOP LEVEL FOR DIAGNOSTICS
-const APP_VERSION = "v10.2";
+const APP_VERSION = "v10.3";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
@@ -749,15 +749,22 @@ async function recordEvent(actionKey) {
         // 3. Propagate to users (Targeted)
         const usersSnapshot = await getDocs(collection(window.db, "users"));
         let updatedCount = 0;
+        let totalUsers = 0;
 
         usersSnapshot.forEach(userDoc => {
+            totalUsers++;
             const userData = userDoc.data();
             const team = userData.team || {};
             let hasCharacter = false;
 
-            // Check if user has this character in team
-            Object.values(team).flat().forEach(item => {
-                if (item && item.id === charId) hasCharacter = true;
+            // Robust check for character in team
+            Object.keys(team).forEach(cat => {
+                const members = team[cat];
+                if (Array.isArray(members)) {
+                    members.forEach(m => {
+                        if (m && (m.id === charId || m.name === charData.name)) hasCharacter = true;
+                    });
+                }
             });
 
             if (hasCharacter) {
@@ -769,7 +776,7 @@ async function recordEvent(actionKey) {
         });
 
         await batch.commit();
-        alert(`Evento registrato! Personaggio: ${charData.name}. Utenti aggiornati: ${updatedCount}. 🚀`);
+        alert(`Evento registrato per ${charData.name}!\n- Punti: ${action.pts}\n- Utenti aggiornati: ${updatedCount} su ${totalUsers}.\n\nSe il numero di utenti aggiornati è troppo basso, verifica che i personaggi abbiano l'ID corretto nelle squadre.`);
         loadAdminEvents();
 
     } catch (error) {
