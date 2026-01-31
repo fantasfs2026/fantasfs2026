@@ -1,3 +1,8 @@
+// Set App Version (Matching SW) - TOP LEVEL FOR DIAGNOSTICS
+const APP_VERSION = "v10.2";
+const versionEl = document.getElementById('app-version');
+if (versionEl) versionEl.textContent = APP_VERSION;
+
 let deferredPrompt;
 const installBtn = document.getElementById('install-button');
 
@@ -47,71 +52,72 @@ window.addEventListener('appinstalled', (event) => {
     }
 });
 
-// Firebase Auth Logic
-const loginBtn = document.getElementById('login-btn');
-const logoutBtn = document.getElementById('logout-btn');
-const userInfo = document.getElementById('user-info');
-const userName = document.getElementById('user-name');
-const userPhoto = document.getElementById('user-photo');
+// Core Application Initialization
+function initApp() {
+    // Check if the module script in index.html has finished attaching globals
+    if (!window.auth || !window.dbUtils || !window.authUtils) {
+        console.log("Waiting for Firebase components (v10.2)...");
+        setTimeout(initApp, 100);
+        return;
+    }
 
-if (loginBtn && window.auth) {
-    loginBtn.addEventListener('click', () => {
-        const { provider, signInWithPopup } = window.authUtils;
-        signInWithPopup(window.auth, provider)
-            .then((result) => console.log('User signed in:', result.user))
-            .catch((error) => {
-                console.error('Sign in error:', error);
-                alert('Errore di autenticazione: ' + error.message + '\n\nAssicurati che il dominio sia autorizzato nella console Firebase.');
-            });
-    });
-}
+    console.log("Firebase components ready. Initializing app logic.");
 
-if (logoutBtn && window.auth) {
-    logoutBtn.addEventListener('click', () => {
-        window.authUtils.signOut(window.auth);
-    });
-}
+    // Firebase Auth Logic
+    const loginBtn = document.getElementById('login-btn');
+    const logoutBtn = document.getElementById('logout-btn');
 
-if (window.auth) {
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            const { provider, signInWithPopup } = window.authUtils;
+            signInWithPopup(window.auth, provider)
+                .then((result) => console.log('User signed in:', result.user))
+                .catch((error) => {
+                    console.error('Sign in error:', error);
+                    alert('Errore di autenticazione: ' + error.message);
+                });
+        });
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            window.authUtils.signOut(window.auth);
+        });
+    }
+
     window.authUtils.onAuthStateChanged(window.auth, async (user) => {
         const loginView = document.getElementById('login-view');
         const dashboardView = document.getElementById('dashboard-view');
         const mainTitle = document.getElementById('main-title');
         const mainSubtitle = document.getElementById('main-subtitle');
-        const authError = document.getElementById('auth-error'); // Make sure this element exists in HTML
+        const authError = document.getElementById('auth-error');
 
         if (user) {
             // CHECK WHITELIST (FIRESTORE)
             try {
-                // Determine if user is allowed by checking 'allowed_users' collection
                 const { doc, getDoc } = window.dbUtils;
                 const allowRef = doc(window.db, "allowed_users", user.email);
                 const allowSnap = await getDoc(allowRef);
 
                 if (!allowSnap.exists()) {
-                    console.warn("Unauthorized access attempt (not in DB whitelist):", user.email);
+                    console.warn("Unauthorized access attempt:", user.email);
                     await window.authUtils.signOut(window.auth);
-
                     if (authError) {
                         authError.style.display = 'block';
-                        authError.textContent = `Accesso negato per ${user.email}. Non sei abilitato.`;
+                        authError.textContent = `Accesso negato per ${user.email}.`;
                     }
-
-                    // Reset View to Login
                     if (loginView) loginView.style.display = 'block';
                     if (dashboardView) dashboardView.style.display = 'none';
                     return;
                 }
             } catch (err) {
                 console.error("Error checking whitelist:", err);
-                // Optional: handle error gracefully or deny access on error
             }
 
             // AUTHORIZED & LOGGED IN
             if (authError) authError.style.display = 'none';
             if (loginView) loginView.style.display = 'none';
             if (dashboardView) dashboardView.style.display = 'block';
-
             if (mainTitle) mainTitle.textContent = "Area Personale";
             if (mainSubtitle) mainSubtitle.style.display = 'none';
 
@@ -120,6 +126,8 @@ if (window.auth) {
             if (nav) nav.style.display = 'flex';
 
             // Populate User Info
+            const userName = document.getElementById('user-name');
+            const userPhoto = document.getElementById('user-photo');
             if (userName) userName.textContent = user.displayName;
             if (userPhoto) userPhoto.src = user.photoURL;
 
@@ -127,10 +135,8 @@ if (window.auth) {
             loadMarketData();
         } else {
             // LOGGED OUT
-            // Don't hide error here immediately to let user see it if they were just kicked out
             if (loginView) loginView.style.display = 'block';
             if (dashboardView) dashboardView.style.display = 'none';
-
             if (mainTitle) mainTitle.textContent = "Benvenuto";
             if (mainSubtitle) {
                 mainSubtitle.textContent = "Accedi per visualizzare la tua squadra";
@@ -138,7 +144,13 @@ if (window.auth) {
             }
         }
     });
+
+    // Initialize Navigation
+    initNavigation();
 }
+
+// Start the loop
+initApp();
 
 // TEAM & MARKET LOGIC
 let currentUserData = null;
@@ -881,10 +893,7 @@ document.getElementById('save-scores-btn').onclick = async function () {
     }
 };
 
-// Set App Version (Matching SW)
-const APP_VERSION = "v10.1";
-const versionEl = document.getElementById('app-version');
-if (versionEl) versionEl.textContent = APP_VERSION;
+// Navigation listner moved to inside initApp loop via initNavigation() call
 
 // Call init navigation once DOM is ready (or here if deferred)
 document.addEventListener('DOMContentLoaded', initNavigation);
