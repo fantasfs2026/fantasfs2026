@@ -744,7 +744,7 @@ document.getElementById('save-scores-btn').onclick = async function () {
 };
 
 // Set App Version (Matching SW)
-const APP_VERSION = "v8.2";
+const APP_VERSION = "v8.3";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
@@ -767,6 +767,7 @@ if (isIOS && !isStandalone) {
 }
 
 // Background Image Swap (Optimized)
+/* 
 window.addEventListener('load', () => {
     const bg = document.querySelector('.background-image');
     if (bg) {
@@ -778,3 +779,4 @@ window.addEventListener('load', () => {
         };
     }
 });
+*/
