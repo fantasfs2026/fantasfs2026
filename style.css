@@ -28,8 +28,10 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow-y: auto;
     position: relative;
+    padding: 2rem 0;
+    /* Add padding to top/bottom for better scrolling experience */
 }
 
 .background-image {
