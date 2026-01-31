@@ -1,5 +1,5 @@
 // Set App Version (Matching SW) - TOP LEVEL FOR DIAGNOSTICS
-const APP_VERSION = "v10.6";
+const APP_VERSION = "v10.7";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
@@ -649,9 +649,12 @@ async function loadCharacterScores() {
             const listEl = lists[item.category];
             if (listEl) {
                 listEl.innerHTML += `
-                    <div class="market-item" style="padding: 10px; margin-bottom: 5px; background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); cursor: default;">
+                    <div class="market-item" onclick="openCharEventsModal('${doc.id}', '${item.name.replace(/'/g, "\\'")}')" style="padding: 10px; margin-bottom: 5px; background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); cursor: pointer;">
                         <span class="item-name" style="font-size: 0.9rem;">${item.name}</span>
-                        <span class="item-price" style="color: var(--lavender); font-size: 0.9rem;">${item.fantaScore || 0} pts</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="item-price" style="color: var(--lavender); font-size: 0.9rem;">${item.fantaScore || 0} pts</span>
+                            <span style="opacity: 0.3; font-size: 0.7rem;">▶</span>
+                        </div>
                     </div>
                 `;
             }
@@ -661,6 +664,58 @@ async function loadCharacterScores() {
         console.error("Error loading character scores:", error);
     }
 }
+
+async function openCharEventsModal(charId, charName) {
+    const modal = document.getElementById('char-events-modal');
+    const nameEl = document.getElementById('modal-char-name');
+    const listEl = document.getElementById('modal-char-events-list');
+
+    if (!modal || !listEl) return;
+
+    nameEl.textContent = charName;
+    listEl.innerHTML = '<div class="loading-item">Caricamento storico...</div>';
+    modal.style.display = 'flex';
+
+    if (!window.dbUtils) return;
+
+    try {
+        const { getDocs, collection, query, where, orderBy } = window.dbUtils;
+        const q = query(
+            collection(window.db, "events"),
+            where("characterId", "==", charId),
+            orderBy("timestamp", "desc")
+        );
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            listEl.innerHTML = '<div class="loading-item" style="opacity:0.6">Nessun evento registrato per questo personaggio.</div>';
+            return;
+        }
+
+        listEl.innerHTML = '';
+        snapshot.forEach(docSnap => {
+            const ev = docSnap.data();
+            const time = new Date(ev.timestamp).toLocaleTimeString([], { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+            const ptsClass = ev.points >= 0 ? 'positive' : 'negative';
+
+            listEl.innerHTML += `
+                <div class="event-item" style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.85rem;">${ev.actionLabel}</div>
+                        <div style="font-size: 0.7rem; opacity: 0.5;">${time}</div>
+                    </div>
+                    <span class="${ptsClass}" style="font-weight: bold;">${ev.points > 0 ? '+' : ''}${ev.points}</span>
+                </div>
+            `;
+        });
+    } catch (error) {
+        console.error("Error loading char events:", error);
+        listEl.innerHTML = '<div class="loading-item" style="color:red">Errore nel caricamento.</div>';
+    }
+}
+
+// Global scope for onclick access
+window.openCharEventsModal = openCharEventsModal;
 
 // Global scope for onclick access (or attach via addEventListener)
 window.openUserTeamModal = function (userData) {
