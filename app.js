@@ -1,5 +1,5 @@
 // Set App Version (Matching SW) - TOP LEVEL FOR DIAGNOSTICS
-const APP_VERSION = "v10.9";
+const APP_VERSION = "v10.10";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
@@ -680,14 +680,13 @@ async function toggleCharacterAccordion(element, charId) {
     const chevron = element.querySelector('.chevron');
     const isActive = element.classList.contains('active');
 
-    // Close others if you want, but let's just toggle this one
     if (isActive) {
         element.classList.remove('active');
-        panel.style.maxHeight = null;
+        panel.style.maxHeight = '0px';
         chevron.style.transform = 'rotate(0deg)';
     } else {
         element.classList.add('active');
-        panel.style.maxHeight = '300px'; // Set a reasonable limit or use scrollHeight
+        panel.style.maxHeight = '500px';
         chevron.style.transform = 'rotate(180deg)';
         loadCharacterDetailsInline(charId, panel.querySelector('.character-event-list'));
     }
@@ -697,35 +696,39 @@ async function loadCharacterDetailsInline(charId, container) {
     if (!window.dbUtils) return;
 
     try {
-        const { getDocs, collection, query, where, orderBy } = window.dbUtils;
+        const { getDocs, collection, query, where } = window.dbUtils;
+        // Simple query without orderBy to avoid index requirements
         const q = query(
             collection(window.db, "events"),
-            where("characterId", "==", charId),
-            orderBy("timestamp", "desc")
+            where("characterId", "==", charId)
         );
         const snapshot = await getDocs(q);
 
         if (snapshot.empty) {
-            container.innerHTML = '<div style="opacity:0.5; font-style:italic;">Nessun evento registrato.</div>';
+            container.innerHTML = '<div style="opacity:0.5; font-style:italic; padding: 10px;">Nessun evento registrato.</div>';
             return;
         }
 
+        // Sort locally by timestamp desc
+        const events = [];
+        snapshot.forEach(docSnap => events.push(docSnap.data()));
+        events.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
         container.innerHTML = '';
-        snapshot.forEach(docSnap => {
-            const ev = docSnap.data();
+        events.forEach(ev => {
             const time = new Date(ev.timestamp).toLocaleTimeString([], { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
             const ptsClass = ev.points >= 0 ? 'positive' : 'negative';
 
             container.innerHTML += `
-                <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.03);">
-                    <span>${ev.actionLabel} <small style="opacity:0.4">(${time})</small></span>
-                    <span class="${ptsClass}" style="font-weight:bold;">${ev.points > 0 ? '+' : ''}${ev.points}</span>
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03);">
+                    <span style="flex: 1; text-align: left;">${ev.actionLabel} <small style="opacity:0.4">(${time})</small></span>
+                    <span class="${ptsClass}" style="font-weight:bold; min-width: 40px; text-align: right;">${ev.points > 0 ? '+' : ''}${ev.points}</span>
                 </div>
             `;
         });
     } catch (error) {
         console.error("Error loading inline details:", error);
-        container.innerHTML = '<div style="color:red">Errore...</div>';
+        container.innerHTML = `<div style="color:red; font-size: 0.7rem; padding: 10px;">Errore: ${error.message}</div>`;
     }
 }
 
