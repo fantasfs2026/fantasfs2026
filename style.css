@@ -554,6 +554,14 @@ footer {
 }
 
 /* CHECKOUT VIEW STYLES */
+#checkout-view {
+    position: relative;
+    z-index: 100;
+    /* Ensure it is above everything */
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
 .checkout-list {
     margin: 1.5rem 0;
     background: rgba(255, 255, 255, 0.05);
