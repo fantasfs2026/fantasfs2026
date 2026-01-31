@@ -699,66 +699,74 @@ document.getElementById('save-scores-btn').onclick = async function () {
 
     try {
         const batch = writeBatch(window.db);
+        console.log("--- START PROPAGATION (v8.8) ---");
 
-        // 1. Update Market Items scores
-        const newScoresMap = {}; // itemId -> score
+        // 1. Map new scores
+        const newScoresMap = {};
+        const scoresByName = {};
         inputs.forEach(input => {
             const itemId = input.dataset.id;
             const score = parseInt(input.value) || 0;
+            const parent = input.closest('.market-item');
+            const itemName = parent ? parent.querySelector('.item-name').textContent : null;
+
             newScoresMap[itemId] = score;
+            if (itemName) scoresByName[itemName] = score;
+
             const itemRef = doc(window.db, "market", itemId);
             batch.set(itemRef, { fantaScore: score }, { merge: true });
         });
 
-        // 2. We need to recalculate EVERY user score
-        console.log("Fetching all users for score propagation...");
+        // 2. Fetch all users
         const usersSnapshot = await getDocs(collection(window.db, "users"));
-        console.log(`Found ${usersSnapshot.size} users to update.`);
-
-        if (usersSnapshot.empty) {
-            console.warn("No users found in Firestore. Check permissions?");
-        }
+        console.log(`Found ${usersSnapshot.size} total users in DB.`);
 
         usersSnapshot.forEach(userDoc => {
-            console.log(`Processing update for user doc ID: ${userDoc.id}`);
             const userData = userDoc.data();
             const team = userData.team || {};
+            const userName = userData.displayName || userDoc.id;
             let totalScore = 0;
-            const userName = userData.displayName || "Unknown";
 
             console.log(`Recalculating for ${userName}...`);
 
-            // Calculate total for this user
-            Object.values(team).flat().forEach(item => {
+            // Flatten items from all categories
+            const items = [];
+            Object.values(team).forEach(categoryItems => {
+                if (Array.isArray(categoryItems)) items.push(...categoryItems);
+            });
+
+            items.forEach(item => {
                 if (item) {
-                    // Try to get score by ID first, then by name as fallback (safety)
-                    const itemScore = newScoresMap[item.id] || 0;
-                    totalScore += itemScore;
-                    console.log(`  - Item: ${item.name}, Score: ${itemScore}`);
+                    let itemScore = newScoresMap[item.id];
+                    if (itemScore === undefined && item.name) {
+                        itemScore = scoresByName[item.name];
+                    }
+                    const finalItemScore = itemScore || 0;
+                    totalScore += finalItemScore;
+                    console.log(`  - Item: ${item.name}, Score: ${finalItemScore}`);
                 }
             });
 
-            console.log(`  - Total for ${userName}: ${totalScore}`);
-
+            console.log(`  - Final Total for ${userName}: ${totalScore}`);
             const userRef = doc(window.db, "users", userDoc.id);
             batch.set(userRef, { fantaScore: totalScore }, { merge: true });
         });
 
         await batch.commit();
-        alert("Punteggi aggiornati correttamente per tutti gli utenti! 🎉");
+        alert(`Propagazione completata! Aggiornati ${usersSnapshot.size} utenti. 🚀`);
         btn.disabled = false;
         btn.textContent = "Salva e Aggiorna Classifica";
 
     } catch (error) {
         console.error("Score update error:", error);
-        alert("Errore durante l'aggiornamento: " + error.message);
+        alert("Errore: " + error.message);
         btn.disabled = false;
         btn.textContent = "Riprova";
     }
 };
 
 // Set App Version (Matching SW)
-const APP_VERSION = "v8.7";
+const APP_VERSION = "v8.8";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
