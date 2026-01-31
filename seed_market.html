@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Seed Market Data</title>
+</head>
+
+<body>
+    <h1>Seeding Market Data...</h1>
+    <div id="status">Starting...</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // CONFIG: REPLACE WITH YOUR ACTUAL CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyCSCj5PAkFr9Rl-yA2-qBeE4GacWoS63b0",
+            authDomain: "fantasfs2026.firebaseapp.com",
+            projectId: "fantasfs2026",
+            storageBucket: "fantasfs2026.firebasestorage.app",
+            messagingSenderId: "794313055029",
+            appId: "1:794313055029:web:7ac9b30e0b603638dd8a7c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const initialData = [
+            // Circoli
+            { name: "Circolo A", category: "Circolo", price: 20 },
+            { name: "Circolo B", category: "Circolo", price: 15 },
+            { name: "Circolo C", category: "Circolo", price: 25 },
+
+            // Equipe
+            { name: "Mario Rossi", category: "Equipe", price: 50 },
+            { name: "Luigi Verdi", category: "Equipe", price: 45 },
+            { name: "Marco Bianchi", category: "Equipe", price: 60 },
+
+            // Ospiti
+            { name: "Ospite VIP 1", category: "Ospite", price: 10 },
+            { name: "Ospite VIP 2", category: "Ospite", price: 12 },
+            { name: "Ospite VIP 3", category: "Ospite", price: 8 }
+        ];
+
+        async function seed() {
+            const status = document.getElementById('status');
+            try {
+                // Clear existing (Optional - be careful in prod!)
+                // const snapshot = await getDocs(collection(db, "market"));
+                // snapshot.forEach(doc => deleteDoc(doc.ref));
+
+                const colRef = collection(db, "market");
+
+                for (const item of initialData) {
+                    await addDoc(colRef, item);
+                    status.innerText += `\nAdded ${item.name}`;
+                }
+
+                status.innerText += "\nDONE! You can verify in the app.";
+            } catch (error) {
+                console.error(error);
+                status.innerText += `\nERROR: ${error.message}`;
+            }
+        }
+
+        seed();
+    </script>
+</body>
+
+</html>
