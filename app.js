@@ -100,6 +100,7 @@ async function handleUserProfile(user) {
                 displayName: user.displayName,
                 email: user.email,
                 credits: 100, // Initial 100 points
+                role: "user", // Required by Security Rules
                 createdAt: new Date()
             });
         }
