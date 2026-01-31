@@ -366,7 +366,8 @@ function updateDraftUI() {
             costEl.style.color = "var(--accent-color)";
 
             // Re-bind click (simple way)
-            saveBtn.onclick = () => showCheckoutView(totalCost);
+            // Re-bind click (simple way)
+            saveBtn.onclick = () => showConfirmationModal(totalCost);
         }
 
     } else {
@@ -374,69 +375,33 @@ function updateDraftUI() {
     }
 }
 
-// CHECKOUT VIEW LOGIC
-function showCheckoutView(totalCost) {
-    const dashboardView = document.getElementById('dashboard-view');
-    const checkoutView = document.getElementById('checkout-view');
-    const draftBar = document.getElementById('draft-bar');
-    const mainTitle = document.getElementById('main-title');
+// MODAL CONFIRMATION LOGIC
+function showConfirmationModal(totalCost) {
+    const modal = document.getElementById('confirm-modal');
+    const recapContainer = document.getElementById('modal-recap');
+    const totalEl = document.getElementById('modal-total-cost');
+    const confirmBtn = document.getElementById('modal-confirm-btn');
+    const cancelBtn = document.getElementById('modal-cancel-btn');
 
-    // Hide Dashboard & Sticky Bar
-    dashboardView.style.display = 'none';
-    draftBar.style.display = 'none';
-
-    // Show Checkout
-    checkoutView.style.display = 'block';
-
-    // Update Title (Context)
-    if (mainTitle) mainTitle.textContent = "Riepilogo Squadra";
-    window.scrollTo(0, 0);
-
-    // Populate Data
-    const checkoutList = document.getElementById('checkout-list');
-    const countEl = document.getElementById('checkout-count');
-    const totalEl = document.getElementById('checkout-total');
-    const remainingEl = document.getElementById('checkout-remaining');
-
-    checkoutList.innerHTML = '';
-    let count = 0;
+    recapContainer.innerHTML = '';
 
     Object.entries(currentDraft).forEach(([category, items]) => {
         items.forEach(item => {
-            count++;
-            checkoutList.innerHTML += `
-                <div class="checkout-item">
-                    <div>
-                        <span class="checkout-item-name">${item.name}</span>
-                        <span class="checkout-item-cat">${category}</span>
-                    </div>
-                    <span>${item.price} pts</span>
+            recapContainer.innerHTML += `
+                <div class="recap-row">
+                    <span>${item.name} <small style="opacity:0.7">(${category})</small></span>
+                    <span>${item.price}</span>
                 </div>
             `;
         });
     });
 
-    countEl.textContent = `${count}/5`;
     totalEl.textContent = `${totalCost} pts`;
+    modal.style.display = 'flex';
 
-    const currentCredits = currentUserData ? currentUserData.credits : 100;
-    remainingEl.textContent = `${currentCredits - totalCost} pts`;
-
-    // Bind Actions
-    document.getElementById('checkout-back-btn').onclick = () => {
-        checkoutView.style.display = 'none';
-        dashboardView.style.display = 'block';
-        draftBar.style.display = 'flex';
-        if (mainTitle) mainTitle.textContent = "Area Personale";
-    };
-
-    const confirmBtn = document.getElementById('checkout-confirm-btn');
-    // Force enable on load
-    confirmBtn.disabled = false;
-    confirmBtn.textContent = "Conferma Squadra";
+    cancelBtn.onclick = () => modal.style.display = 'none';
 
     confirmBtn.onclick = async () => {
-        // Validation check
         if (!window.dbUtils || !window.dbUtils.updateDoc) {
             alert("Errore di sistema: Funzione di salvataggio non caricata. Ricarica la pagina.");
             return;
@@ -444,19 +409,17 @@ function showCheckoutView(totalCost) {
 
         try {
             confirmBtn.disabled = true;
-            confirmBtn.textContent = "Elaborazione in corso...";
-
+            confirmBtn.textContent = "Elaborazione...";
             await saveTeamToFirestore(totalCost);
-
-            // If we are here, save was successful. 
-            // In checkout logic, the view is replaced, so we don't need to re-enable.
-            // But if logic changes, safer to do nothing or handle in saveTeamToFirestore.
-
-        } catch (error) {
-            console.error("Critical error in checkout:", error);
+            modal.style.display = 'none';
+            // Reset button just in case logic is reused without reload (though saveTeam clears UI)
             confirmBtn.disabled = false;
-            confirmBtn.textContent = "Riprova Conferma";
-            alert("Si è verificato un errore imprevisto: " + error.message);
+            confirmBtn.textContent = "Conferma Acquisto";
+        } catch (error) {
+            console.error(error);
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = "Riprova";
+            alert("Errore: " + error.message);
         }
     };
 }
@@ -474,22 +437,13 @@ async function saveTeamToFirestore(totalCost) {
         credits: currentUserData.credits - totalCost
     });
 
-    // Success State - Replace View Content
-    const checkoutView = document.getElementById('checkout-view');
-    checkoutView.innerHTML = `
-        <div style="text-align: center; padding: 2rem; animation: fadeIn 0.5s;">
-            <div style="font-size: 4rem; margin-bottom: 1rem;">🎉</div>
-            <h2 style="color: var(--accent-color); margin-bottom: 1rem;">Daje!</h2>
-            <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 2rem;">
-                La tua squadra è stata registrata con successo.<br>
-                In bocca al lupo per il FantaSFS!
-            </p>
-            <button class="btn-primary" onclick="location.reload()">Torna alla Home</button>
-        </div>
-    `;
-
-    // Reset local state
+    // Reset local state & UI
+    document.getElementById('draft-bar').style.display = 'none';
+    document.querySelectorAll('.market-item.selected').forEach(el => el.classList.remove('selected'));
     currentDraft = { 'Circolo': [], 'Equipe': [], 'Ospite': [] };
+
+    alert("Squadra confermata con successo! 🎉");
+    location.reload(); // Reload to refresh state cleanly
 }
 
 

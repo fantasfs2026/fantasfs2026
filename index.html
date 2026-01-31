@@ -132,36 +132,21 @@
                 alt="share icon" width="20"> e poi <strong>"Aggiungi alla schermata Home"</strong></p>
         <button onclick="document.getElementById('ios-hint').style.display='none'">Chiudi</button>
     </div>
-
-    <!-- CHECKOUT VIEW (Hidden by default) -->
-    <div id="checkout-view" style="display: none;">
-        <h2>Riepilogo Squadra</h2>
-        <p class="description">Controlla le tue scelte prima di confermare.</p>
-
-        <div id="checkout-list" class="checkout-list">
-            <!-- Items injected here -->
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="checkout-summary">
-            <div class="summary-row">
-                <span>Totale Giocatori</span>
-                <span id="checkout-count">0/5</span>
+    <!-- CONFIRMATION MODAL -->
+    <div id="confirm-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3>Conferma Squadra</h3>
+            <div id="modal-recap" class="modal-recap">
+                <!-- Recap items injected here -->
             </div>
-            <div class="summary-row total">
-                <span>Totale Costo</span>
-                <span id="checkout-total">0 pts</span>
+            <div class="modal-total">
+                <span>Totale:</span>
+                <span id="modal-total-cost">0 pts</span>
             </div>
-            <div class="summary-row budget">
-                <span>Crediti Residui</span>
-                <span id="checkout-remaining">--</span>
+            <div class="modal-actions">
+                <button id="modal-cancel-btn" class="btn-text">Annulla</button>
+                <button id="modal-confirm-btn" class="btn-primary">Conferma Acquisto</button>
             </div>
-        </div>
-
-        <div class="checkout-actions">
-            <button id="checkout-back-btn" class="btn-secondary">Torna Indietro</button>
-            <button id="checkout-confirm-btn" class="btn-primary">Conferma Squadra</button>
         </div>
     </div>
 
