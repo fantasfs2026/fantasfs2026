@@ -482,9 +482,11 @@ h1 {
 
 footer {
     margin-top: 3rem;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     color: rgba(255, 255, 255, 0.4);
-    letter-spacing: 0.1em;
+    letter-spacing: 0.05em;
+    text-align: right;
+    padding-right: 1rem;
 }
 
 @media (max-width: 480px) {
