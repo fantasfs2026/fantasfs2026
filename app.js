@@ -47,6 +47,43 @@ window.addEventListener('appinstalled', (event) => {
     }
 });
 
+// Firebase Auth Logic
+const loginBtn = document.getElementById('login-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const userInfo = document.getElementById('user-info');
+const userName = document.getElementById('user-name');
+const userPhoto = document.getElementById('user-photo');
+
+if (loginBtn && window.auth) {
+    loginBtn.addEventListener('click', () => {
+        const { provider, signInWithPopup } = window.authUtils;
+        signInWithPopup(window.auth, provider)
+            .then((result) => console.log('User signed in:', result.user))
+            .catch((error) => console.error('Sign in error:', error));
+    });
+}
+
+if (logoutBtn && window.auth) {
+    logoutBtn.addEventListener('click', () => {
+        window.authUtils.signOut(window.auth);
+    });
+}
+
+if (window.auth) {
+    window.authUtils.onAuthStateChanged(window.auth, (user) => {
+        if (user) {
+            loginBtn.style.display = 'none';
+            userInfo.style.display = 'flex';
+            userName.textContent = user.displayName;
+            userPhoto.src = user.photoURL;
+        } else {
+            loginBtn.style.display = 'inline-block';
+            userInfo.style.display = 'none';
+        }
+    });
+}
+
+
 // iOS Detection & Hint
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
