@@ -1,5 +1,5 @@
 // Set App Version (Matching SW) - TOP LEVEL FOR DIAGNOSTICS
-const APP_VERSION = "v10.16";
+const APP_VERSION = "v10.17";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
@@ -332,7 +332,7 @@ async function loadMarketData() {
                         <span class="item-name">${item.name}</span>
                         <div class="check-icon">✓</div>
                     </div>
-                    <span class="item-price">${item.price} pts</span>
+                    <span class="item-price">${item.price} crediti</span>
                 `;
                 listContainer.appendChild(itemEl);
             }
@@ -392,7 +392,7 @@ function updateDraftUI() {
 
     if (totalCount > 0) {
         draftBar.style.display = 'flex';
-        costEl.textContent = `Costo: ${totalCost}`;
+        costEl.textContent = `Costo: ${totalCost} crediti`;
         countEl.textContent = `${totalCount}/5`;
 
         // Validate Budget
@@ -438,7 +438,7 @@ function showConfirmationModal(totalCost) {
         });
     });
 
-    totalEl.textContent = `${totalCost} pts`;
+    totalEl.textContent = `${totalCost} crediti`;
     modal.style.display = 'flex';
 
     cancelBtn.onclick = () => modal.style.display = 'none';
