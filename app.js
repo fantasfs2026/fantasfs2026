@@ -72,15 +72,8 @@ if (logoutBtn && window.auth) {
     });
 }
 
-// CONFIGURATION
-const allowedEmails = [
-    "carlogrigioni@gmail.com",
-    "carlogrigionitest@gmail.com"
-    // Add other allowed emails here
-];
-
 if (window.auth) {
-    window.authUtils.onAuthStateChanged(window.auth, (user) => {
+    window.authUtils.onAuthStateChanged(window.auth, async (user) => {
         const loginView = document.getElementById('login-view');
         const dashboardView = document.getElementById('dashboard-view');
         const mainTitle = document.getElementById('main-title');
@@ -88,15 +81,30 @@ if (window.auth) {
         const authError = document.getElementById('auth-error'); // Make sure this element exists in HTML
 
         if (user) {
-            // CHECK WHITELIST
-            if (!allowedEmails.includes(user.email)) {
-                console.warn("Unauthorized access attempt:", user.email);
-                window.authUtils.signOut(window.auth);
-                if (authError) {
-                    authError.style.display = 'block';
-                    authError.textContent = `Accesso negato per ${user.email}. Non sei in lista.`;
+            // CHECK WHITELIST (FIRESTORE)
+            try {
+                // Determine if user is allowed by checking 'allowed_users' collection
+                const { doc, getDoc } = window.dbUtils;
+                const allowRef = doc(window.db, "allowed_users", user.email);
+                const allowSnap = await getDoc(allowRef);
+
+                if (!allowSnap.exists()) {
+                    console.warn("Unauthorized access attempt (not in DB whitelist):", user.email);
+                    await window.authUtils.signOut(window.auth);
+
+                    if (authError) {
+                        authError.style.display = 'block';
+                        authError.textContent = `Accesso negato per ${user.email}. Non sei abilitato.`;
+                    }
+
+                    // Reset View to Login
+                    if (loginView) loginView.style.display = 'block';
+                    if (dashboardView) dashboardView.style.display = 'none';
+                    return;
                 }
-                return;
+            } catch (err) {
+                console.error("Error checking whitelist:", err);
+                // Optional: handle error gracefully or deny access on error
             }
 
             // AUTHORIZED & LOGGED IN
