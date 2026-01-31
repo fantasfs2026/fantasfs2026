@@ -110,34 +110,31 @@
                         </div>
                     </div>
                 </div>
-        </div>
-        </div>
 
-        <!-- LEADERBOARD VIEW (Hidden by default) -->
-        <div id="leaderboard-view" style="display: none; padding-bottom: 80px;">
-            <div class="leaderboard-header">
-                <!-- h2 Removed to avoid double title with #main-title -->
-                <p class="description">Guarda chi è in testa al FantaSFS!</p>
+                <!-- LEADERBOARD VIEW (Hidden by default) -->
+                <div id="leaderboard-view" style="display: none; padding-bottom: 100px;">
+                    <div class="leaderboard-header">
+                        <p class="description">Guarda chi è in testa al FantaSFS!</p>
+                    </div>
+
+                    <div id="leaderboard-list" class="leaderboard-list">
+                        <div class="loading-item">Caricamento classifica...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STICKY ACTION BAR for Draft Mode -->
+            <div id="draft-bar" class="draft-bar" style="display: none;">
+                <div class="draft-info">
+                    <span id="draft-cost">Costo: 0</span>
+                    <span id="draft-count" style="font-size: 0.8rem; opacity: 0.8">0/5</span>
+                </div>
+                <button id="save-team-btn" class="btn-primary" disabled>Conferma Squadra</button>
             </div>
 
-            <div id="leaderboard-list" class="leaderboard-list">
-                <div class="loading-item">Caricamento classifica...</div>
-            </div>
-        </div>
-        </section>
-
-        <!-- STICKY ACTION BAR for Draft Mode -->
-        <div id="draft-bar" class="draft-bar" style="display: none;">
-            <div class="draft-info">
-                <span id="draft-cost">Costo: 0</span>
-                <span id="draft-count" style="font-size: 0.8rem; opacity: 0.8">0/5</span>
-            </div>
-            <button id="save-team-btn" class="btn-primary" disabled>Conferma Squadra</button>
-        </div>
-
-        <footer>
-            <p>&copy; 2026. Tutti i diritti riservati.</p>
-        </footer>
+            <footer>
+                <p>&copy; 2026. Tutti i diritti riservati.</p>
+            </footer>
         </div>
     </main>
 
