@@ -231,6 +231,74 @@ h1 {
     color: var(--text-secondary);
 }
 
+.team-section {
+    margin-top: 2rem;
+    animation: fadeIn 0.5s ease;
+}
+
+.team-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.team-slot {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s;
+}
+
+.team-slot:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-color);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.slot-icon {
+    font-size: 1.5rem;
+    opacity: 0.8;
+}
+
+.slot-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.slot-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+    line-height: 1.2;
+}
+
+@media (max-width: 400px) {
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .team-slot {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+    }
+}
+
+
 .btn-text {
     background: transparent;
     border: none;

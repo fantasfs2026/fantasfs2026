@@ -105,11 +105,35 @@ async function handleUserProfile(user) {
             });
         }
 
-        // Live credits listener
+        // Live credits & Team listener
         onSnapshot(userDocRef, (doc) => {
             const data = doc.data();
-            if (data && document.getElementById('user-credits')) {
-                document.getElementById('user-credits').textContent = `Crediti: ${data.credits}`;
+            if (data) {
+                // Update Credits
+                if (document.getElementById('user-credits')) {
+                    document.getElementById('user-credits').textContent = `Crediti: ${data.credits}`;
+                }
+
+                // Update Team Slots
+                const team = data.team || {};
+
+                const updateSlot = (id, value) => {
+                    const el = document.querySelector(`#${id} .slot-value`);
+                    if (el) el.textContent = value || "Vuoto";
+                    if (value) el.style.color = "var(--accent-color)";
+                    else el.style.color = "var(--text-secondary)";
+                };
+
+                updateSlot('slot-circolo', team.circolo);
+                updateSlot('slot-equipe', team.equipe);
+                updateSlot('slot-ospite', team.ospite);
+
+                // Show Team Section
+                const teamSection = document.getElementById('team-section');
+                const rulesContainer = document.querySelector('.rules-container');
+                if (teamSection) teamSection.style.display = 'block';
+                // Optional: Hide rules to clean up UI when logged in
+                if (rulesContainer) rulesContainer.style.display = 'none';
             }
         });
 
