@@ -115,6 +115,10 @@ if (window.auth) {
             if (mainTitle) mainTitle.textContent = "Area Personale";
             if (mainSubtitle) mainSubtitle.style.display = 'none';
 
+            // Show Navbar
+            const nav = document.getElementById('bottom-nav');
+            if (nav) nav.style.display = 'flex';
+
             // Populate User Info
             if (userName) userName.textContent = user.displayName;
             if (userPhoto) userPhoto.src = user.photoURL;
@@ -445,6 +449,112 @@ async function saveTeamToFirestore(totalCost) {
     alert("Squadra confermata con successo! 🎉");
     location.reload(); // Reload to refresh state cleanly
 }
+
+// ------------------------------------------------------------------
+// NAVIGATION & LEADERBOARD LOGIC
+// ------------------------------------------------------------------
+
+function initNavigation() {
+    const navItems = document.querySelectorAll('.nav-item');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // Remove active class from all
+            navItems.forEach(nav => nav.classList.remove('active'));
+            // Add active to click
+            item.classList.add('active');
+
+            const targetId = item.dataset.target;
+            handleNavigation(targetId);
+        });
+    });
+}
+
+function handleNavigation(targetId) {
+    const dashboardView = document.getElementById('dashboard-view');
+    const leaderboardView = document.getElementById('leaderboard-view');
+    const mainTitle = document.getElementById('main-title');
+    const draftBar = document.getElementById('draft-bar');
+
+    // Hide all main views
+    dashboardView.style.display = 'none';
+    leaderboardView.style.display = 'none';
+
+    // Logic for specific targets
+    if (targetId === 'dashboard-view') {
+        dashboardView.style.display = 'block';
+        if (mainTitle) mainTitle.textContent = "Area Personale";
+        // Restore draft bar if applicable
+        if (Object.values(currentDraft).flat().length > 0) {
+            draftBar.style.display = 'flex';
+        }
+    }
+    else if (targetId === 'leaderboard-view') {
+        leaderboardView.style.display = 'block';
+        draftBar.style.display = 'none'; // Hide draft bar in leaderboard
+        if (mainTitle) mainTitle.textContent = "Classifica";
+        loadLeaderboard();
+    }
+    else if (targetId === 'user-info') {
+        // Special case: Scroll to Rules in Dashboard
+        dashboardView.style.display = 'block';
+        if (mainTitle) mainTitle.textContent = "Regolamento";
+        const rules = document.querySelector('.rules-container');
+        if (rules) rules.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+async function loadLeaderboard() {
+    const listContainer = document.getElementById('leaderboard-list');
+    listContainer.innerHTML = '<div class="loading-item">Aggiornamento...</div>';
+
+    const { getDocs, collection, query, orderBy } = window.dbUtils;
+
+    try {
+        // Fetch users ordered by fantaScore desc
+        const q = query(collection(window.db, "users"), orderBy("fantaScore", "desc"));
+        const querySnapshot = await getDocs(q);
+
+        listContainer.innerHTML = '';
+
+        let rank = 1;
+
+        querySnapshot.forEach((doc) => {
+            const userData = doc.data();
+            const score = userData.fantaScore || 0;
+            const name = userData.displayName || "Utente";
+            const photo = userData.photoURL || "https://img.icons8.com/ios-glyphs/30/ffffff/user--v1.png";
+
+            // Determine styling based on rank
+            let itemClass = "leaderboard-item";
+            if (rank <= 3) itemClass += ` top-${rank}`;
+
+            listContainer.innerHTML += `
+                <div class="${itemClass}">
+                    <div class="rank-badge">${rank}</div>
+                    <img src="${photo}" alt="${name}" class="user-avatar-small">
+                    <div class="leaderboard-info">
+                        <span class="leaderboard-name">${name}</span>
+                    </div>
+                    <span class="leaderboard-score">${score} pts</span>
+                </div>
+            `;
+            rank++;
+        });
+
+        if (querySnapshot.empty) {
+            listContainer.innerHTML = '<div class="loading-item">Nessun punteggio disponibile.</div>';
+        }
+
+    } catch (error) {
+        console.error("Error loading leaderboard:", error);
+        listContainer.innerHTML = '<div class="loading-item" style="color:red">Errore caricamento.</div>';
+    }
+}
+
+// Call init navigation once DOM is ready (or here if deferred)
+document.addEventListener('DOMContentLoaded', initNavigation);
+
 
 
 

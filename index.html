@@ -150,6 +150,34 @@
         </div>
     </div>
 
+    <!-- LEADERBOARD VIEW (Hidden by default) -->
+    <div id="leaderboard-view" style="display: none; padding-bottom: 80px;">
+        <div class="leaderboard-header">
+            <h2>Classifica</h2>
+            <p class="description">Guarda chi è in testa al FantaSFS!</p>
+        </div>
+
+        <div id="leaderboard-list" class="leaderboard-list">
+            <div class="loading-item">Caricamento classifica...</div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav id="bottom-nav" class="bottom-nav" style="display: none;">
+        <div class="nav-item active" data-target="dashboard-view">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Home</span>
+        </div>
+        <div class="nav-item" data-target="leaderboard-view">
+            <span class="nav-icon">🏆</span>
+            <span class="nav-label">Classifica</span>
+        </div>
+        <div class="nav-item" data-target="user-info"> <!-- Using user-info as a placeholder for Profile/Rules -->
+            <span class="nav-icon">📜</span>
+            <span class="nav-label">Regole</span>
+        </div>
+    </nav>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
