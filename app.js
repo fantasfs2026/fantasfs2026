@@ -690,7 +690,7 @@ async function loadAdminMarket() {
 document.getElementById('save-scores-btn').onclick = async function () {
     const btn = this;
     const inputs = document.querySelectorAll('.admin-score-input');
-    const { getFirestore, writeBatch, doc, collection, getDocs } = window.dbUtils;
+    const { writeBatch, doc, collection, getDocs } = window.dbUtils;
 
     if (!confirm("Stai per aggiornare i punti di tutti i personaggi e ricalcolare la classifica. Procedere?")) return;
 
