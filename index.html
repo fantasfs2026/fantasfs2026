@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>L'attesa sta per finire</title>
+    <title>Fantasfs 2026</title>
     <meta name="description" content="Qualcosa di straordinario sta per arrivare. L'attesa sta per finire.">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
@@ -26,27 +26,28 @@
         <div class="card">
             <header>
                 <div class="badge">2026</div>
-                <h1>Regole del Gioco</h1>
+                <h1 id="main-title">Benvenuto</h1>
+                <p id="main-subtitle" class="main-text">Accedi per iniziare</p>
             </header>
 
             <section class="content">
-                <div class="divider"></div>
-                <div class="rules-container">
-                    <p class="description">Hai <strong>100 punti</strong> a disposizione. Con il tuo budget puoi
-                        acquistare:</p>
-                    <ul class="rules-list">
-                        <li>Un <strong>Circolo</strong></li>
-                        <li>Un membro di <strong>Equipe Nazionale</strong></li>
-                        <li>Un <strong>Ospite</strong></li>
-                    </ul>
+                <!-- LOGIN VIEW -->
+                <div id="login-view">
+                    <button id="login-btn" class="btn-install" style="display: block; margin: 0 auto;">
+                        Accedi con Google
+                    </button>
+                    <div id="install-container" style="margin-top: 2rem; display: none;">
+                        <button id="install-button" class="btn-install">
+                            Installa l'App
+                        </button>
+                    </div>
                 </div>
-                <button id="install-button" class="btn-install" style="display: none;">
-                    Installa l'App
-                </button>
 
-                <div id="auth-section" class="auth-section">
-                    <button id="login-btn" class="btn-secondary">Accedi con Google</button>
-                    <div id="user-info" class="user-info" style="display: none;">
+                <!-- DASHBOARD VIEW (Hidden by default) -->
+                <div id="dashboard-view" style="display: none;">
+
+                    <!-- USER INFO -->
+                    <div id="user-info" class="user-info">
                         <img id="user-photo" src="" alt="Profile" class="user-avatar">
                         <div class="user-details">
                             <span id="user-name"></span>
@@ -54,53 +55,68 @@
                         </div>
                         <button id="logout-btn" class="btn-text">Esci</button>
                     </div>
-                </div>
 
-                <div id="team-section" class="team-section" style="display: none;">
                     <div class="divider"></div>
-                    <h2>La Tua Squadra</h2>
-                    <div class="team-grid">
-                        <div class="team-slot" id="slot-circolo">
-                            <div class="slot-icon">🏟️</div>
-                            <div class="slot-label">Circolo</div>
-                            <div class="slot-value">--</div>
-                        </div>
-                        <div class="team-slot" id="slot-equipe">
-                            <div class="slot-icon">👥</div>
-                            <div class="slot-label">Equipe Naz.</div>
-                            <div class="slot-value">--</div>
-                        </div>
-                        <div class="team-slot" id="slot-ospite">
-                            <div class="slot-icon">🌟</div>
-                            <div class="slot-label">Ospite</div>
-                            <div class="slot-value">--</div>
-                        </div>
-                    </div>
-                </div>
 
-                <div id="market-section" class="market-section" style="display: none;">
-                    <div class="divider"></div>
-                    <h2>Quotazioni</h2>
-
-                    <div class="market-category">
-                        <h3>🏟️ Circoli</h3>
-                        <div id="list-circolo" class="market-list">
-                            <!-- Items will be injected here -->
-                            <div class="loading-item">Caricamento...</div>
-                        </div>
+                    <!-- RULES -->
+                    <div class="rules-container">
+                        <h3>Le Regole</h3>
+                        <p class="description">Hai <strong>100 punti</strong> a disposizione. Con il tuo budget puoi
+                            acquistare:</p>
+                        <ul class="rules-list">
+                            <li>Un <strong>Circolo</strong></li>
+                            <li>Un membro di <strong>Equipe Nazionale</strong></li>
+                            <li>Un <strong>Ospite</strong></li>
+                        </ul>
                     </div>
 
-                    <div class="market-category">
-                        <h3>👥 Equipe Nazionale</h3>
-                        <div id="list-equipe" class="market-list">
-                            <div class="loading-item">Caricamento...</div>
+                    <!-- TEAM SECTION -->
+                    <div id="team-section" class="team-section">
+                        <div class="divider"></div>
+                        <h2>La Tua Squadra</h2>
+                        <div class="team-grid">
+                            <div class="team-slot" id="slot-circolo">
+                                <div class="slot-icon">🏟️</div>
+                                <div class="slot-label">Circolo</div>
+                                <div class="slot-value">--</div>
+                            </div>
+                            <div class="team-slot" id="slot-equipe">
+                                <div class="slot-icon">👥</div>
+                                <div class="slot-label">Equipe Naz.</div>
+                                <div class="slot-value">--</div>
+                            </div>
+                            <div class="team-slot" id="slot-ospite">
+                                <div class="slot-icon">🌟</div>
+                                <div class="slot-label">Ospite</div>
+                                <div class="slot-value">--</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="market-category">
-                        <h3>🌟 Ospiti</h3>
-                        <div id="list-ospite" class="market-list">
-                            <div class="loading-item">Caricamento...</div>
+                    <!-- MARKET SECTION -->
+                    <div id="market-section" class="market-section">
+                        <div class="divider"></div>
+                        <h2>Quotazioni</h2>
+
+                        <div class="market-category">
+                            <h3>🏟️ Circoli</h3>
+                            <div id="list-circolo" class="market-list">
+                                <div class="loading-item">Caricamento...</div>
+                            </div>
+                        </div>
+
+                        <div class="market-category">
+                            <h3>👥 Equipe Nazionale</h3>
+                            <div id="list-equipe" class="market-list">
+                                <div class="loading-item">Caricamento...</div>
+                            </div>
+                        </div>
+
+                        <div class="market-category">
+                            <h3>🌟 Ospiti</h3>
+                            <div id="list-ospite" class="market-list">
+                                <div class="loading-item">Caricamento...</div>
+                            </div>
                         </div>
                     </div>
                 </div>
