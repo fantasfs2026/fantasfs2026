@@ -4,8 +4,8 @@ service cloud.firestore {
     
     // Helper function to check if user is whitelisted
     function isWhitelisted() {
-      return exists(/databases/$(database)/documents/allowed_users/$(request.auth.token.email)) ||
-             exists(/databases/$(database)/documents/allowed_users/$(request.auth.token.email.lower()));
+      let email = request.auth.token.email.lower();
+      return exists(/databases/$(database)/documents/allowed_users/$(email));
     }
 
     // Helper function to check if user is admin
@@ -21,9 +21,10 @@ service cloud.firestore {
       allow write: if (request.auth != null && request.auth.uid == userId) || isAdmin();
     }
 
-    // ALLOWED_USERS: Read for all auth, Write for Admin
+    // ALLOWED_USERS: Allow reading ONLY your own entry to verify whitelist status
     match /allowed_users/{email} {
-      allow read: if request.auth != null;
+      allow get: if request.auth != null && request.auth.token.email.lower() == email.lower();
+      allow list: if isAdmin(); // Only admin can list everyone
       allow write: if isAdmin(); 
     }
 
@@ -33,9 +34,9 @@ service cloud.firestore {
       allow write: if isAdmin(); 
     }
 
-    // EVENTS: Whitelisted read, Write for Admin
+    // EVENTS: Only whitelisted users can see the game log
     match /events/{eventId} {
-      allow read: if request.auth != null; // Simpler check for now to diagnose rules issue
+      allow read: if request.auth != null && isWhitelisted();
       allow write: if isAdmin();
     }
   }
