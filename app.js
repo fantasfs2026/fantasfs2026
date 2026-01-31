@@ -769,7 +769,7 @@ document.getElementById('save-scores-btn').onclick = async function () {
 };
 
 // Set App Version (Matching SW)
-const APP_VERSION = "v9.0";
+const APP_VERSION = "v9.1";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 

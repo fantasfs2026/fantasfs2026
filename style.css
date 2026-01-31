@@ -837,8 +837,9 @@ footer {
 }
 
 .leaderboard-item.top-3 {
-    background: linear-gradient(90deg, rgba(251, 146, 60, 0.1), rgba(13, 11, 26, 0.4));
-    border-color: var(--accent-color);
+    /* Removing the podium orange background to avoid confusion with the 'Tu' highlight */
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .leaderboard-item.is-me {
