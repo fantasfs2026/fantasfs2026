@@ -1,5 +1,5 @@
 // Set App Version (Matching SW) - TOP LEVEL FOR DIAGNOSTICS
-const APP_VERSION = "v10.8";
+const APP_VERSION = "v10.9";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
@@ -652,11 +652,18 @@ async function loadCharacterScores() {
             const listEl = lists[item.category];
             if (listEl) {
                 listEl.innerHTML += `
-                    <div class="market-item" onclick="openCharEventsModal('${doc.id}', '${item.name.replace(/'/g, "\\'")}')" style="padding: 10px; margin-bottom: 5px; background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); cursor: pointer;">
-                        <span class="item-name" style="font-size: 0.9rem;">${item.name}</span>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="item-price" style="color: var(--lavender); font-size: 0.9rem;">${item.fantaScore || 0} pts</span>
-                            <span style="opacity: 0.3; font-size: 0.7rem;">▶</span>
+                    <div class="market-item accordion" onclick="toggleCharacterAccordion(this, '${doc.id}')" style="padding: 10px; margin-bottom: 5px; background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); cursor: pointer; display: block; text-align: left;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <span class="item-name" style="font-size: 0.9rem;">${item.name}</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="item-price" style="color: var(--lavender); font-size: 0.9rem;">${item.fantaScore || 0} pts</span>
+                                <span class="chevron" style="opacity: 0.3; font-size: 0.7rem; transition: transform 0.3s;">▼</span>
+                            </div>
+                        </div>
+                        <div class="accordion-panel" id="panel-${doc.id}" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; margin-top: 0;">
+                            <div class="character-event-list" style="padding-top: 10px; font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 10px;">
+                                <div class="loading-item" style="font-size: 0.7rem;">Caricamento...</div>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -668,17 +675,25 @@ async function loadCharacterScores() {
     }
 }
 
-async function openCharEventsModal(charId, charName) {
-    const modal = document.getElementById('char-events-modal');
-    const nameEl = document.getElementById('modal-char-name');
-    const listEl = document.getElementById('modal-char-events-list');
+async function toggleCharacterAccordion(element, charId) {
+    const panel = element.querySelector('.accordion-panel');
+    const chevron = element.querySelector('.chevron');
+    const isActive = element.classList.contains('active');
 
-    if (!modal || !listEl) return;
+    // Close others if you want, but let's just toggle this one
+    if (isActive) {
+        element.classList.remove('active');
+        panel.style.maxHeight = null;
+        chevron.style.transform = 'rotate(0deg)';
+    } else {
+        element.classList.add('active');
+        panel.style.maxHeight = '300px'; // Set a reasonable limit or use scrollHeight
+        chevron.style.transform = 'rotate(180deg)';
+        loadCharacterDetailsInline(charId, panel.querySelector('.character-event-list'));
+    }
+}
 
-    nameEl.textContent = charName;
-    listEl.innerHTML = '<div class="loading-item">Caricamento storico...</div>';
-    modal.style.display = 'flex';
-
+async function loadCharacterDetailsInline(charId, container) {
     if (!window.dbUtils) return;
 
     try {
@@ -691,31 +706,33 @@ async function openCharEventsModal(charId, charName) {
         const snapshot = await getDocs(q);
 
         if (snapshot.empty) {
-            listEl.innerHTML = '<div class="loading-item" style="opacity:0.6">Nessun evento registrato per questo personaggio.</div>';
+            container.innerHTML = '<div style="opacity:0.5; font-style:italic;">Nessun evento registrato.</div>';
             return;
         }
 
-        listEl.innerHTML = '';
+        container.innerHTML = '';
         snapshot.forEach(docSnap => {
             const ev = docSnap.data();
             const time = new Date(ev.timestamp).toLocaleTimeString([], { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
             const ptsClass = ev.points >= 0 ? 'positive' : 'negative';
 
-            listEl.innerHTML += `
-                <div class="event-item" style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <div style="flex: 1;">
-                        <div style="font-size: 0.85rem;">${ev.actionLabel}</div>
-                        <div style="font-size: 0.7rem; opacity: 0.5;">${time}</div>
-                    </div>
-                    <span class="${ptsClass}" style="font-weight: bold;">${ev.points > 0 ? '+' : ''}${ev.points}</span>
+            container.innerHTML += `
+                <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.03);">
+                    <span>${ev.actionLabel} <small style="opacity:0.4">(${time})</small></span>
+                    <span class="${ptsClass}" style="font-weight:bold;">${ev.points > 0 ? '+' : ''}${ev.points}</span>
                 </div>
             `;
         });
     } catch (error) {
-        console.error("Error loading char events:", error);
-        listEl.innerHTML = '<div class="loading-item" style="color:red">Errore nel caricamento.</div>';
+        console.error("Error loading inline details:", error);
+        container.innerHTML = '<div style="color:red">Errore...</div>';
     }
 }
+
+// Global scope
+window.toggleCharacterAccordion = toggleCharacterAccordion;
+
+// Character details handled inline via accordion since v10.9
 
 // Global scope for onclick access
 window.openCharEventsModal = openCharEventsModal;
