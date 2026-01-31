@@ -172,6 +172,57 @@ h1 {
 }
 
 
+.auth-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-secondary {
+    padding: 0.8rem 1.8rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 100px;
+    color: white;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-color);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--accent-color);
+}
+
+#user-name {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.btn-text {
+    background: transparent;
+    border: none;
+    color: var(--pink);
+    font-size: 0.8rem;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 footer {
     margin-top: 3rem;
     font-size: 0.8rem;

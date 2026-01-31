@@ -43,6 +43,15 @@
                 <button id="install-button" class="btn-install" style="display: none;">
                     Installa l'App
                 </button>
+
+                <div id="auth-section" class="auth-section">
+                    <button id="login-btn" class="btn-secondary">Accedi con Google</button>
+                    <div id="user-info" class="user-info" style="display: none;">
+                        <img id="user-photo" src="" alt="Profile" class="user-avatar">
+                        <span id="user-name"></span>
+                        <button id="logout-btn" class="btn-text">Esci</button>
+                    </div>
+                </div>
             </section>
 
             <footer>
@@ -60,6 +69,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         // Firebase configuration (Placeholder)
         const firebaseConfig = {
@@ -73,7 +83,12 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        window.db = db; // Global access for app.js
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        window.db = db;
+        window.auth = auth;
+        window.authUtils = { provider, signInWithPopup, signOut, onAuthStateChanged };
     </script>
 
     <script src="app.js" defer></script>
