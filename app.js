@@ -1,5 +1,5 @@
 // Set App Version (Matching SW) - TOP LEVEL FOR DIAGNOSTICS
-const APP_VERSION = "v10.4";
+const APP_VERSION = "v10.5";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
@@ -520,6 +520,7 @@ function initNavigation() {
 }
 
 function handleNavigation(targetId) {
+    const dashboardView = document.getElementById('dashboard-view');
     const leaderboardView = document.getElementById('leaderboard-view');
     const eventsView = document.getElementById('events-view');
     const mainTitle = document.getElementById('main-title');
