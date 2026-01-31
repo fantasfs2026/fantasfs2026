@@ -138,22 +138,42 @@ body {
     -webkit-backdrop-filter: blur(30px);
     border: 1px solid var(--border-color);
     border-radius: 40px;
-    padding: 4rem 3rem;
+    padding: 3rem 2rem;
     text-align: center;
     box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.5);
     animation: fadeInMist 1.5s ease-out;
-    animation: fadeInMist 1.5s ease-out;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+    .card {
+        padding: 2rem 1.5rem;
+        border-radius: 20px;
+    }
+
+    .container {
+        padding: 1rem;
+    }
 }
 
 /* Minimal Mode for Leaderboard */
 .card.compact {
-    padding: 0;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    min-height: auto;
+    padding: 2rem 1rem 0 1rem;
+}
+
+@media (max-width: 600px) {
+    .card.compact {
+        padding: 1.5rem 0.5rem 0 0.5rem;
+    }
+}
+
+background: transparent !important;
+border: none !important;
+box-shadow: none !important;
+backdrop-filter: none !important;
+-webkit-backdrop-filter: none !important;
+min-height: auto;
 }
 
 .card.compact header {

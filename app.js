@@ -1,5 +1,5 @@
 // Set App Version (Matching SW) - TOP LEVEL FOR DIAGNOSTICS
-const APP_VERSION = "v10.7";
+const APP_VERSION = "v10.8";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
@@ -527,10 +527,13 @@ function handleNavigation(targetId) {
     const draftBar = document.getElementById('draft-bar');
     const card = document.querySelector('.card');
 
+    const adminView = document.getElementById('admin-view');
+
     // Hide all main views
     dashboardView.style.display = 'none';
     leaderboardView.style.display = 'none';
     if (eventsView) eventsView.style.display = 'none';
+    if (adminView) adminView.style.display = 'none';
 
     // Logic for specific targets
     if (targetId === 'dashboard-view') {
