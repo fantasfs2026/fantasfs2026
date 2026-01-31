@@ -156,6 +156,16 @@
                         <div class="loading-item">Nessun evento registrato.</div>
                     </div>
                 </div>
+
+                <!-- EVENTS VIEW (New in v10.4) -->
+                <div id="events-view" style="display: none; padding-bottom: 100px;">
+                    <div class="leaderboard-header">
+                        <p class="description">Cronologia Live Eventi</p>
+                    </div>
+                    <div id="public-events-log" class="events-log" style="max-height: none; background: transparent;">
+                        <div class="loading-item">Caricamento eventi...</div>
+                    </div>
+                </div>
             </section>
 
             <!-- STICKY ACTION BAR for Draft Mode -->
@@ -224,6 +234,10 @@
         <div class="nav-item" data-target="leaderboard-view">
             <span class="nav-icon">🏆</span>
             <span class="nav-label">Classifica</span>
+        </div>
+        <div class="nav-item" data-target="events-view">
+            <span class="nav-icon">⚡</span>
+            <span class="nav-label">Eventi</span>
         </div>
         <div class="nav-item" data-target="user-info">
             <span class="nav-icon">📜</span>

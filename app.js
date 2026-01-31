@@ -1,5 +1,5 @@
 // Set App Version (Matching SW) - TOP LEVEL FOR DIAGNOSTICS
-const APP_VERSION = "v10.3";
+const APP_VERSION = "v10.4";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
@@ -520,8 +520,8 @@ function initNavigation() {
 }
 
 function handleNavigation(targetId) {
-    const dashboardView = document.getElementById('dashboard-view');
     const leaderboardView = document.getElementById('leaderboard-view');
+    const eventsView = document.getElementById('events-view');
     const mainTitle = document.getElementById('main-title');
     const draftBar = document.getElementById('draft-bar');
     const card = document.querySelector('.card');
@@ -529,6 +529,7 @@ function handleNavigation(targetId) {
     // Hide all main views
     dashboardView.style.display = 'none';
     leaderboardView.style.display = 'none';
+    if (eventsView) eventsView.style.display = 'none';
 
     // Logic for specific targets
     if (targetId === 'dashboard-view') {
@@ -546,6 +547,13 @@ function handleNavigation(targetId) {
         card.classList.add('compact'); // Compact Mode
         if (mainTitle) mainTitle.textContent = "Classifica";
         loadLeaderboard();
+    }
+    else if (targetId === 'events-view') {
+        if (eventsView) eventsView.style.display = 'block';
+        draftBar.style.display = 'none';
+        card.classList.add('compact');
+        if (mainTitle) mainTitle.textContent = "Cronologia Live";
+        loadPublicEvents();
     }
     else if (targetId === 'admin-view') {
         const adminView = document.getElementById('admin-view');
@@ -819,6 +827,44 @@ async function loadAdminEvents() {
         });
     } catch (error) {
         console.error("Error loading events:", error);
+    }
+}
+
+async function loadPublicEvents() {
+    const container = document.getElementById('public-events-log');
+    if (!container) return;
+
+    if (!window.dbUtils) return;
+
+    try {
+        const { getDocs, collection, query, orderBy, limit } = window.dbUtils;
+        const q = query(collection(window.db, "events"), orderBy("timestamp", "desc"), limit(30));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            container.innerHTML = '<div class="loading-item">Ancora nessun evento registrato.</div>';
+            return;
+        }
+
+        container.innerHTML = '';
+        snapshot.forEach(docSnap => {
+            const ev = docSnap.data();
+            const time = new Date(ev.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const ptsClass = ev.points >= 0 ? 'positive' : 'negative';
+
+            container.innerHTML += `
+                <div class="event-item" style="padding: 15px; background: rgba(255,255,255,0.03); margin-bottom: 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05)">
+                    <div class="event-info">
+                        <span class="event-char" style="font-size: 1rem;">${ev.characterName}</span>
+                        <span class="event-action" style="font-size: 0.8rem; opacity: 0.7;">${time} - ${ev.actionLabel}</span>
+                    </div>
+                    <span class="event-pts ${ptsClass}" style="font-size: 1.1rem;">${ev.points > 0 ? '+' : ''}${ev.points}</span>
+                </div>
+            `;
+        });
+    } catch (error) {
+        console.error("Error loading public events:", error);
+        container.innerHTML = '<div class="loading-item" style="color:red">Errore nel caricamento eventi.</div>';
     }
 }
 
