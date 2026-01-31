@@ -59,7 +59,10 @@ if (loginBtn && window.auth) {
         const { provider, signInWithPopup } = window.authUtils;
         signInWithPopup(window.auth, provider)
             .then((result) => console.log('User signed in:', result.user))
-            .catch((error) => console.error('Sign in error:', error));
+            .catch((error) => {
+                console.error('Sign in error:', error);
+                alert('Errore di autenticazione: ' + error.message + '\n\nAssicurati che il dominio sia autorizzato nella console Firebase.');
+            });
     });
 }
 
