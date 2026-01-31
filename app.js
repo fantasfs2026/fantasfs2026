@@ -74,7 +74,8 @@ if (logoutBtn && window.auth) {
 
 // CONFIGURATION
 const allowedEmails = [
-    "carlo.grigioni@gmail.com",
+    "carlogrigioni@gmail.com",
+    "carlogrigionitest@gmail.com"
     // Add other allowed emails here
 ];
 
