@@ -1,5 +1,5 @@
 // Set App Version (Matching SW) - TOP LEVEL FOR DIAGNOSTICS
-const APP_VERSION = "v10.11";
+const APP_VERSION = "v10.12";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
@@ -489,9 +489,10 @@ async function confirmResetTeam() {
         const userDocRef = doc(window.db, "users", window.auth.currentUser.uid);
         await updateDoc(userDocRef, {
             team: null,
-            credits: 100
+            credits: 100,
+            fantaScore: 0
         });
-        alert("Squadra eliminata. Ora puoi crearne una nuova! 🔄");
+        alert("Squadra eliminata e punteggio azzerato. Ora puoi crearne una nuova! 🔄");
         location.reload();
     } catch (error) {
         console.error("Error resetting team:", error);
@@ -732,10 +733,11 @@ async function loadCharacterDetailsInline(charId, container) {
     }
 }
 
-// Global scope
+// Global scope for onclick access
+window.openCharEventsModal = openCharEventsModal;
 window.toggleCharacterAccordion = toggleCharacterAccordion;
-
-// Character details handled inline via accordion since v10.9
+window.recordEvent = recordEvent;
+window.loadAdminMarket = loadAdminMarket;
 
 // Global scope for onclick access
 window.openCharEventsModal = openCharEventsModal;
