@@ -1,5 +1,5 @@
 // Set App Version (Matching SW) - TOP LEVEL FOR DIAGNOSTICS
-const APP_VERSION = "v10.5";
+const APP_VERSION = "v10.6";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
@@ -548,6 +548,7 @@ function handleNavigation(targetId) {
         card.classList.add('compact'); // Compact Mode
         if (mainTitle) mainTitle.textContent = "Classifica";
         loadLeaderboard();
+        loadCharacterScores();
     }
     else if (targetId === 'events-view') {
         if (eventsView) eventsView.style.display = 'block';
@@ -622,6 +623,42 @@ async function loadLeaderboard() {
     } catch (error) {
         console.error("Error loading leaderboard:", error);
         listContainer.innerHTML = '<div class="loading-item" style="color:red">Errore caricamento.</div>';
+    }
+}
+
+async function loadCharacterScores() {
+    const lists = {
+        'Circolo': document.getElementById('char-scores-circolo'),
+        'Equipe': document.getElementById('char-scores-equipe'),
+        'Ospite': document.getElementById('char-scores-ospite')
+    };
+
+    Object.values(lists).forEach(el => { if (el) el.innerHTML = '<div class="loading-item" style="font-size:0.8rem">...</div>'; });
+
+    if (!window.dbUtils) return;
+
+    try {
+        const { getDocs, collection, query, orderBy } = window.dbUtils;
+        const q = query(collection(window.db, "market"), orderBy("fantaScore", "desc"));
+        const snapshot = await getDocs(q);
+
+        Object.values(lists).forEach(el => { if (el) el.innerHTML = ''; });
+
+        snapshot.forEach(doc => {
+            const item = doc.data();
+            const listEl = lists[item.category];
+            if (listEl) {
+                listEl.innerHTML += `
+                    <div class="market-item" style="padding: 10px; margin-bottom: 5px; background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); cursor: default;">
+                        <span class="item-name" style="font-size: 0.9rem;">${item.name}</span>
+                        <span class="item-price" style="color: var(--lavender); font-size: 0.9rem;">${item.fantaScore || 0} pts</span>
+                    </div>
+                `;
+            }
+        });
+
+    } catch (error) {
+        console.error("Error loading character scores:", error);
     }
 }
 
