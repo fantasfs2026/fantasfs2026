@@ -366,7 +366,7 @@ function updateDraftUI() {
             costEl.style.color = "var(--accent-color)";
 
             // Re-bind click (simple way)
-            saveBtn.onclick = () => showConfirmationModal(totalCost);
+            saveBtn.onclick = () => showCheckoutView(totalCost);
         }
 
     } else {
@@ -374,36 +374,71 @@ function updateDraftUI() {
     }
 }
 
-function showConfirmationModal(totalCost) {
-    const modal = document.getElementById('confirm-modal');
-    const recapContainer = document.getElementById('modal-recap');
-    const totalEl = document.getElementById('modal-total-cost');
-    const confirmBtn = document.getElementById('modal-confirm-btn');
-    const cancelBtn = document.getElementById('modal-cancel-btn');
+// CHECKOUT VIEW LOGIC
+function showCheckoutView(totalCost) {
+    const dashboardView = document.getElementById('dashboard-view');
+    const checkoutView = document.getElementById('checkout-view');
+    const draftBar = document.getElementById('draft-bar');
+    const mainTitle = document.getElementById('main-title');
 
-    recapContainer.innerHTML = '';
+    // Hide Dashboard & Sticky Bar
+    dashboardView.style.display = 'none';
+    draftBar.style.display = 'none';
+
+    // Show Checkout
+    checkoutView.style.display = 'block';
+
+    // Update Title (Context)
+    if (mainTitle) mainTitle.textContent = "Riepilogo Squadra";
+    window.scrollTo(0, 0);
+
+    // Populate Data
+    const checkoutList = document.getElementById('checkout-list');
+    const countEl = document.getElementById('checkout-count');
+    const totalEl = document.getElementById('checkout-total');
+    const remainingEl = document.getElementById('checkout-remaining');
+
+    checkoutList.innerHTML = '';
+    let count = 0;
 
     Object.entries(currentDraft).forEach(([category, items]) => {
         items.forEach(item => {
-            recapContainer.innerHTML += `
-                <div class="recap-row">
-                    <span>${item.name} <small style="opacity:0.7">(${category})</small></span>
-                    <span>${item.price}</span>
+            count++;
+            checkoutList.innerHTML += `
+                <div class="checkout-item">
+                    <div>
+                        <span class="checkout-item-name">${item.name}</span>
+                        <span class="checkout-item-cat">${category}</span>
+                    </div>
+                    <span>${item.price} pts</span>
                 </div>
             `;
         });
     });
 
+    countEl.textContent = `${count}/5`;
     totalEl.textContent = `${totalCost} pts`;
-    modal.style.display = 'flex';
 
-    cancelBtn.onclick = () => modal.style.display = 'none';
+    const currentCredits = currentUserData ? currentUserData.credits : 100;
+    remainingEl.textContent = `${currentCredits - totalCost} pts`;
 
+    // Bind Actions
+    document.getElementById('checkout-back-btn').onclick = () => {
+        checkoutView.style.display = 'none';
+        dashboardView.style.display = 'block';
+        draftBar.style.display = 'flex';
+        if (mainTitle) mainTitle.textContent = "Area Personale";
+    };
+
+    const confirmBtn = document.getElementById('checkout-confirm-btn');
+    // Remove old listeners by cloning or re-assigning onclick
     confirmBtn.onclick = async () => {
         confirmBtn.disabled = true;
-        confirmBtn.textContent = "Salvataggio...";
+        confirmBtn.textContent = "Elaborazione in corso...";
         await saveTeamToFirestore(totalCost);
-        modal.style.display = 'none';
+        // Reset button state just in case
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = "Conferma Squadra";
     };
 }
 
@@ -417,15 +452,25 @@ async function saveTeamToFirestore(totalCost) {
             credits: currentUserData.credits - totalCost
         });
 
-        // Clear UI
-        document.getElementById('draft-bar').style.display = 'none';
-        document.querySelectorAll('.market-item.selected').forEach(el => el.classList.remove('selected'));
-        currentDraft = { 'Circolo': [], 'Equipe': [], 'Ospite': [] };
-        // Success feedback (optional, handled by UI update mostly)
+        // Success State
+        const checkoutView = document.getElementById('checkout-view');
+        checkoutView.innerHTML = `
+            <div style="text-align: center; padding: 2rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
+                <h2>Daje!</h2>
+                <p>La tua squadra è stata registrata con successo.</p>
+                <button class="btn-primary" onclick="location.reload()" style="margin-top: 2rem;">Torna alla Home</button>
+            </div>
+        `;
 
     } catch (e) {
         console.error("Error saving team:", e);
         alert("Errore durante il salvataggio: " + e.message);
+        const confirmBtn = document.getElementById('checkout-confirm-btn'); // Re-get if needed
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = "Riprova Conferma";
+        }
     }
 }
 
