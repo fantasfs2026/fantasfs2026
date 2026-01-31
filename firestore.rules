@@ -24,10 +24,10 @@ service cloud.firestore {
       allow write: if false; 
     }
 
-    // MARKET: Public read, Write restricted
+    // MARKET: Public read, Write restricted (Temporarily Open)
     match /market/{itemId} {
       allow read: if true;
-      allow write: if false; // Admin only in future
+      allow write: if true; // Temporarily open for seeding
     }
   }
 }
