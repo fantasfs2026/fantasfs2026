@@ -651,28 +651,40 @@ window.openUserTeamModal = function (userData) {
 
 async function loadAdminMarket() {
     const container = document.getElementById('admin-market-list');
+    if (!container) return;
     container.innerHTML = '<div class="loading-item">Caricamento personaggi...</div>';
 
-    const { getDocs, collection, query, orderBy } = window.dbUtils;
-    const q = query(collection(window.db, "market"), orderBy("category"), orderBy("name"));
-    const snapshot = await getDocs(q);
+    try {
+        const { getDocs, collection, query, orderBy } = window.dbUtils;
+        // Simplified query to avoid index requirement for now
+        const q = query(collection(window.db, "market"), orderBy("name"));
+        const snapshot = await getDocs(q);
 
-    container.innerHTML = '';
-    snapshot.forEach(doc => {
-        const item = doc.data();
-        const score = item.fantaScore || 0;
+        container.innerHTML = '';
+        snapshot.forEach(doc => {
+            const item = doc.data();
+            const score = item.fantaScore || 0;
 
-        container.innerHTML += `
-            <div class="market-item admin-mode">
-                <div class="leaderboard-info">
-                    <span class="item-name">${item.name}</span>
-                    <small style="opacity:0.6; display:block;">${item.category}</small>
+            container.innerHTML += `
+                <div class="market-item admin-mode">
+                    <div class="leaderboard-info">
+                        <span class="item-name">${item.name}</span>
+                        <small style="opacity:0.6; display:block;">${item.category}</small>
+                    </div>
+                    <input type="number" class="admin-score-input" 
+                           data-id="${doc.id}" value="${score}" step="1">
                 </div>
-                <input type="number" class="admin-score-input" 
-                       data-id="${doc.id}" value="${score}" step="1">
-            </div>
-        `;
-    });
+            `;
+        });
+
+        if (snapshot.empty) {
+            container.innerHTML = '<div class="loading-item">Nessun personaggio nel mercato.</div>';
+        }
+
+    } catch (error) {
+        console.error("Error loading admin market:", error);
+        container.innerHTML = `<div class="loading-item" style="color:red">Errore: ${error.message}</div>`;
+    }
 }
 
 document.getElementById('save-scores-btn').onclick = async function () {
