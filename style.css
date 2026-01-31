@@ -460,71 +460,77 @@ footer {
         opacity: 0;
     }
 
-    /* Selection Styles */
-    .market-item {
-        cursor: pointer;
-        border: 1px solid transparent;
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
     }
+}
 
-    .market-item.selected {
-        background: rgba(251, 146, 60, 0.15);
-        border-color: var(--accent-color);
-    }
+/* Selection Styles */
+.market-item {
+    cursor: pointer;
+    border: 1px solid transparent;
+}
 
-    .market-item.selected .item-price {
-        background: var(--accent-color);
-        color: white;
-    }
+.market-item.selected {
+    background: rgba(251, 146, 60, 0.15);
+    border-color: var(--accent-color);
+}
 
-    /* Draft Sticky Bar */
-    .draft-bar {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        max-width: 500px;
-        background: rgba(13, 11, 26, 0.95);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid var(--accent-color);
-        border-radius: 100px;
-        padding: 10px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        z-index: 100;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-        animation: slideUp 0.3s ease-out;
-    }
+.market-item.selected .item-price {
+    background: var(--accent-color);
+    color: white;
+}
 
-    .draft-info {
-        display: flex;
-        flex-direction: column;
-    }
+/* Draft Sticky Bar */
+.draft-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 500px;
+    background: rgba(13, 11, 26, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--accent-color);
+    border-radius: 100px;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s ease-out;
+}
 
-    #draft-cost {
-        font-weight: 700;
-        color: var(--accent-color);
-    }
+.draft-info {
+    display: flex;
+    flex-direction: column;
+}
 
-    .btn-primary {
-        background: var(--accent-color);
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
+#draft-cost {
+    font-weight: 700;
+    color: var(--accent-color);
+}
 
-    .btn-primary:hover {
-        filter: brightness(1.1);
-    }
+.btn-primary {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
 
-    .btn-primary:disabled {
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.3);
-        cursor: not-allowed;
-    }
+.btn-primary:hover {
+    filter: brightness(1.1);
+}
+
+.btn-primary:disabled {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+    cursor: not-allowed;
+}

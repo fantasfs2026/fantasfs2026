@@ -286,7 +286,10 @@ async function loadMarketData() {
                 itemEl.onclick = () => toggleSelection(itemEl, item);
 
                 itemEl.innerHTML = `
-                    <span class="item-name">${item.name}</span>
+                    <div class="item-header">
+                        <span class="item-name">${item.name}</span>
+                        <div class="check-icon">✓</div>
+                    </div>
                     <span class="item-price">${item.price} pts</span>
                 `;
                 listContainer.appendChild(itemEl);
@@ -317,18 +320,9 @@ function toggleSelection(element, item) {
         element.classList.remove('selected');
     } else {
         // Select - Check Constraints
-        if (category === 'Circolo' && list.length >= 2) {
-            alert("Puoi selezionare massimo 2 Circoli.");
-            return;
-        }
-        if (category === 'Equipe' && list.length >= 2) {
-            alert("Puoi selezionare massimo 2 membri di Equipe.");
-            return;
-        }
-        if (category === 'Ospite' && list.length >= 1) {
-            alert("Puoi selezionare massimo 1 Ospite.");
-            return;
-        }
+        if (category === 'Circolo' && list.length >= 2) return alert("Puoi selezionare massimo 2 Circoli.");
+        if (category === 'Equipe' && list.length >= 2) return alert("Puoi selezionare massimo 2 membri di Equipe.");
+        if (category === 'Ospite' && list.length >= 1) return alert("Puoi selezionare massimo 1 Ospite.");
 
         // Add
         list.push(item);
@@ -372,7 +366,7 @@ function updateDraftUI() {
             costEl.style.color = "var(--accent-color)";
 
             // Re-bind click (simple way)
-            saveBtn.onclick = () => saveTeam(totalCost);
+            saveBtn.onclick = () => showConfirmationModal(totalCost);
         }
 
     } else {
@@ -380,9 +374,40 @@ function updateDraftUI() {
     }
 }
 
-async function saveTeam(totalCost) {
-    if (!confirm(`Confermi la squadra per ${totalCost} crediti? Non potrai modificarla.`)) return;
+function showConfirmationModal(totalCost) {
+    const modal = document.getElementById('confirm-modal');
+    const recapContainer = document.getElementById('modal-recap');
+    const totalEl = document.getElementById('modal-total-cost');
+    const confirmBtn = document.getElementById('modal-confirm-btn');
+    const cancelBtn = document.getElementById('modal-cancel-btn');
 
+    recapContainer.innerHTML = '';
+
+    Object.entries(currentDraft).forEach(([category, items]) => {
+        items.forEach(item => {
+            recapContainer.innerHTML += `
+                <div class="recap-row">
+                    <span>${item.name} <small style="opacity:0.7">(${category})</small></span>
+                    <span>${item.price}</span>
+                </div>
+            `;
+        });
+    });
+
+    totalEl.textContent = `${totalCost} pts`;
+    modal.style.display = 'flex';
+
+    cancelBtn.onclick = () => modal.style.display = 'none';
+
+    confirmBtn.onclick = async () => {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = "Salvataggio...";
+        await saveTeamToFirestore(totalCost);
+        modal.style.display = 'none';
+    };
+}
+
+async function saveTeamToFirestore(totalCost) {
     const { doc, updateDoc } = window.dbUtils;
     const userDocRef = doc(window.db, "users", window.auth.currentUser.uid);
 
@@ -392,14 +417,11 @@ async function saveTeam(totalCost) {
             credits: currentUserData.credits - totalCost
         });
 
-        // UI will update automatically via onSnapshot
-        alert("Squadra salvata con successo!");
-
-        // Clear Draft UI
+        // Clear UI
         document.getElementById('draft-bar').style.display = 'none';
-        // Clear selections visually
         document.querySelectorAll('.market-item.selected').forEach(el => el.classList.remove('selected'));
         currentDraft = { 'Circolo': [], 'Equipe': [], 'Ospite': [] };
+        // Success feedback (optional, handled by UI update mostly)
 
     } catch (e) {
         console.error("Error saving team:", e);
