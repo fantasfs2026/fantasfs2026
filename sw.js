@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getMessaging } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-sw.js";
 
-const CACHE_NAME = 'fantasfs-v3';
+const CACHE_NAME = 'fantasfs-v4';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
