@@ -136,11 +136,41 @@ h1 {
     line-height: 1.6;
     font-weight: 400;
     font-size: 1.25rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     max-width: 500px;
     margin-left: auto;
     margin-right: auto;
 }
+
+.rules-list {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0;
+    text-align: left;
+    display: inline-block;
+}
+
+.rules-list li {
+    font-size: 1.2rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+    position: relative;
+    opacity: 0.9;
+}
+
+.rules-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent-color);
+    font-weight: 700;
+}
+
+.rules-list strong {
+    color: var(--accent-color);
+}
+
 
 footer {
     margin-top: 3rem;
