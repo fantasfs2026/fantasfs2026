@@ -534,7 +534,7 @@ async function loadLeaderboard() {
             if (rank <= 3) itemClass += ` top-${rank}`;
 
             listContainer.innerHTML += `
-                <div class="${itemClass}">
+                <div class="${itemClass}" onclick='openUserTeamModal(${JSON.stringify(userData).replace(/'/g, "&#39;")})'>
                     <div class="rank-badge">${rank}</div>
                     <img src="${photo}" alt="${name}" class="user-avatar-small">
                     <div class="leaderboard-info">
@@ -555,6 +555,53 @@ async function loadLeaderboard() {
         listContainer.innerHTML = '<div class="loading-item" style="color:red">Errore caricamento.</div>';
     }
 }
+
+// Global scope for onclick access (or attach via addEventListener)
+window.openUserTeamModal = function (userData) {
+    const modal = document.getElementById('user-team-modal');
+    const photoEl = document.getElementById('detail-user-photo');
+    const nameEl = document.getElementById('detail-user-name');
+    const scoreEl = document.getElementById('detail-user-score');
+    const listEl = document.getElementById('detail-team-list');
+    const closeBtn = document.getElementById('close-team-modal');
+
+    // Populate Header
+    photoEl.src = userData.photoURL || "https://img.icons8.com/ios-glyphs/80/ffffff/user--v1.png";
+    nameEl.textContent = userData.displayName || "Utente";
+    scoreEl.textContent = (userData.fantaScore || 0) + " pts";
+
+    // Populate List
+    listEl.innerHTML = '';
+    const team = userData.team || {};
+    let hasTeam = false;
+
+    Object.entries(team).forEach(([category, items]) => {
+        if (items && items.length > 0) {
+            hasTeam = true;
+            items.forEach(item => {
+                listEl.innerHTML += `
+                    <div class="detail-item">
+                        <span>${item.name}</span>
+                        <span>${category}</span>
+                    </div>
+                `;
+            });
+        }
+    });
+
+    if (!hasTeam) {
+        listEl.innerHTML = '<div class="loading-item">Nessuna squadra formata.</div>';
+    }
+
+    // Show Modal
+    modal.style.display = 'flex';
+
+    // Close Actions
+    closeBtn.onclick = () => modal.style.display = 'none';
+    modal.onclick = (e) => {
+        if (e.target === modal) modal.style.display = 'none';
+    };
+};
 
 // Call init navigation once DOM is ready (or here if deferred)
 document.addEventListener('DOMContentLoaded', initNavigation);

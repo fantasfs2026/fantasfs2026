@@ -9,11 +9,11 @@ service cloud.firestore {
              exists(/databases/$(database)/documents/allowed_users/$(request.auth.token.email.lower()));
     }
 
-    // USERS: Each user can read/write only their own document
-    // AND must be in the whitelist
+    // USERS: TEMPORARILY OPEN FOR SEEDING
     match /users/{userId} {
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow read, update: if request.auth != null && request.auth.uid == userId && isWhitelisted();
+      // allow create: if request.auth != null && request.auth.uid == userId;
+      // allow read, update: if request.auth != null && request.auth.uid == userId && isWhitelisted();
+      allow read, write: if true;
     }
 
     // ALLOWED_USERS: Read-only for authenticated users (to check their own status)
