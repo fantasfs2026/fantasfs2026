@@ -1,5 +1,5 @@
 // Set App Version (Matching SW) - TOP LEVEL FOR DIAGNOSTICS
-const APP_VERSION = "v10.13";
+const APP_VERSION = "v10.14";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
@@ -793,14 +793,7 @@ window.openUserTeamModal = function (userData) {
     };
 };
 
-const SCORING_ACTIONS = {
-    'canta': { label: '🎤 Canta', pts: 15 },
-    'parla': { label: '🗣️ Parla', pts: 5 },
-    'saluta': { label: '👋 Saluta', pts: 2 },
-    'battuta': { label: '🤣 Battuta', pts: 8 },
-    'errore': { label: '😱 Errore', pts: -10 },
-    'ospite': { label: '🌟 Ospite', pts: 20 }
-};
+
 
 async function loadAdminMarket() {
     const select = document.getElementById('admin-character-select');
