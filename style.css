@@ -80,34 +80,36 @@ body {
     animation: fadeInMist 1.5s ease-out;
 }
 
-/* Compact Mode for Leaderboard */
+/* Minimal Mode for Leaderboard */
 .card.compact {
-    padding: 2rem 1.5rem;
-    min-height: 80vh;
-    /* Ensure it feels like a page */
+    padding: 0;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    min-height: auto;
 }
 
 .card.compact header {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 .card.compact header .badge {
-    margin-bottom: 0.5rem;
-    padding: 0.4rem 1rem;
-    font-size: 0.7rem;
+    display: none;
 }
 
 .card.compact header h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
     margin-bottom: 0;
+    opacity: 0.9;
 }
 
 .card.compact header .main-text {
     display: none;
-    /* Hide subtitle in compact mode */
 }
 
 @keyframes fadeInMist {
