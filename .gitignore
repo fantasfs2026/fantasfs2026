@@ -1,3 +1,6 @@
 node_modules/
 .env
 seed_*.html
+firestore.rules
+package.json
+package-lock.json
