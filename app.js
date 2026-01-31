@@ -711,10 +711,16 @@ document.getElementById('save-scores-btn').onclick = async function () {
         });
 
         // 2. We need to recalculate EVERY user score
-        // (Batch limit is 500 operations. If users + items > 500 we need multiple batches)
+        console.log("Fetching all users for score propagation...");
         const usersSnapshot = await getDocs(collection(window.db, "users"));
+        console.log(`Found ${usersSnapshot.size} users to update.`);
+
+        if (usersSnapshot.empty) {
+            console.warn("No users found in Firestore. Check permissions?");
+        }
 
         usersSnapshot.forEach(userDoc => {
+            console.log(`Processing update for user doc ID: ${userDoc.id}`);
             const userData = userDoc.data();
             const team = userData.team || {};
             let totalScore = 0;
@@ -752,7 +758,7 @@ document.getElementById('save-scores-btn').onclick = async function () {
 };
 
 // Set App Version (Matching SW)
-const APP_VERSION = "v8.4";
+const APP_VERSION = "v8.5";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
 
