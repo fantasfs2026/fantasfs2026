@@ -1,7 +1,16 @@
 // Set App Version (Matching SW) - TOP LEVEL FOR DIAGNOSTICS
-const APP_VERSION = "v10.12";
+const APP_VERSION = "v10.13";
 const versionEl = document.getElementById('app-version');
 if (versionEl) versionEl.textContent = APP_VERSION;
+
+const SCORING_ACTIONS = {
+    'canta': { label: '🎤 Canta', pts: 15 },
+    'parla': { label: '🗣️ Parla', pts: 5 },
+    'saluta': { label: '👋 Saluta', pts: 2 },
+    'battuta': { label: '🤣 Battuta', pts: 8 },
+    'errore': { label: '😱 Errore', pts: -10 },
+    'ospite': { label: '🌟 Ospite', pts: 20 }
+};
 
 let deferredPrompt;
 const installBtn = document.getElementById('install-button');
@@ -734,15 +743,9 @@ async function loadCharacterDetailsInline(charId, container) {
 }
 
 // Global scope for onclick access
-window.openCharEventsModal = openCharEventsModal;
 window.toggleCharacterAccordion = toggleCharacterAccordion;
 window.recordEvent = recordEvent;
 window.loadAdminMarket = loadAdminMarket;
-
-// Global scope for onclick access
-window.openCharEventsModal = openCharEventsModal;
-
-// Global scope for onclick access (or attach via addEventListener)
 window.openUserTeamModal = function (userData) {
     console.log("Opening modal for user:", userData);
     const modal = document.getElementById('user-team-modal');
@@ -804,6 +807,17 @@ async function loadAdminMarket() {
     const grid = document.getElementById('admin-actions-grid');
     if (!select || !grid) return;
 
+    // 1. Populate Actions Grid IMMEDIATELY (No DB dependency)
+    grid.innerHTML = '';
+    Object.entries(SCORING_ACTIONS).forEach(([key, action]) => {
+        grid.innerHTML += `
+            <button class="action-btn" onclick="recordEvent('${key}')">
+                <span>${action.label}</span>
+                <span class="pts">${action.pts > 0 ? '+' : ''}${action.pts} pts</span>
+            </button>
+        `;
+    });
+
     if (!window.dbUtils) {
         console.warn("dbUtils not ready yet.");
         return;
@@ -814,22 +828,11 @@ async function loadAdminMarket() {
         const q = query(collection(window.db, "market"), orderBy("name"));
         const snapshot = await getDocs(q);
 
-        // Populate Character Select
+        // 2. Populate Character Select
         select.innerHTML = '<option value="">Scegli un personaggio...</option>';
         snapshot.forEach(doc => {
             const item = doc.data();
             select.innerHTML += `<option value="${doc.id}">${item.name} (${item.category})</option>`;
-        });
-
-        // Populate Actions Grid
-        grid.innerHTML = '';
-        Object.entries(SCORING_ACTIONS).forEach(([key, action]) => {
-            grid.innerHTML += `
-                <button class="action-btn" onclick="recordEvent('${key}')">
-                    <span>${action.label}</span>
-                    <span class="pts">${action.pts > 0 ? '+' : ''}${action.pts} pts</span>
-                </button>
-            `;
         });
 
         loadAdminEvents();
